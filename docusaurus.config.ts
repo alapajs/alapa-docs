@@ -5,15 +5,15 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'AlapaJs',
+  title: 'Alapa',
   tagline: 'Alapa is a flexible, high-performance web development framework with React-like components, intuitive routing, and built-in authentication. Perfect for scalable, maintainable applications.',
   favicon: 'img/logo.png',
 
   // Set the production url of your site here
-  url: 'https://alapajs.github.io',
+  url: 'https://alapa.dev',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/alapa-docs',
+  baseUrl: '/',
   trailingSlash: false,
 
   // GitHub pages deployment config.
@@ -40,7 +40,7 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl:'https://github.com/alapajs/alapa-doc/tree/main/',
+          editUrl:'https://github.com/alapajs/alapa-docs/tree/main/',
         },
         blog: {
           showReadingTime: true,
@@ -50,7 +50,7 @@ const config: Config = {
           },
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/alapajs/alapa-doc/tree/main/',
+          editUrl: 'https://github.com/alapajs/alapa-docs/tree/main/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -73,7 +73,7 @@ const config: Config = {
     
     image: 'img/logo.png', 
     navbar: {
-      title: 'Alapa Js',
+      title: 'Alapa',
       logo: {
         alt: 'My Site Logo',
         src: 'img/logo.png',

@@ -18,6 +18,8 @@ Alapa supports resourceful routing, which maps common CRUD operations to routes:
 
 Define your controller class and include methods for each resourceful operation:
 
+<CodeScreen title="src/app/books/Controller.ts">
+
 ```ts
 import { ResourcefulController, Request, Response } from "alapa";
 
@@ -39,9 +41,6 @@ export class BookController implements ResourcefulController {
   async store(req: Request, res: Response) {
     const book = new Books();
     book.title = req.body.title;
-    book.author = req.body.author;
-    book.year = req.body.year;
-    book.description = req.body.description;
     await book.save();
     res.flash("success", "Book created successfully");
     res.redirect("/books");
@@ -56,9 +55,6 @@ export class BookController implements ResourcefulController {
     const book = await Books.findOneBy({ id: req.params.book });
     if (book) {
       book.title = req.body.title;
-      book.author = req.body.author;
-      book.year = req.body.year;
-      book.description = req.body.description;
       await book.save();
       res.flash("success", "Book updated successfully");
     } else {
@@ -80,14 +76,20 @@ export class BookController implements ResourcefulController {
 }
 ```
 
+</CodeScreen>
+
 Register the resourceful route:
+
+<CodeScreen title="src/app/books/router.ts">
 
 ```ts
 import { Router } from "alapa";
-import { BookController } from "./books/controller";
+import { BookController } from "./Controller";
 
 const routes = new Router();
 routes.resource("/books", BookController);
 
 export default routes;
 ```
+
+</CodeScreen>
