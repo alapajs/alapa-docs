@@ -1,0 +1,244 @@
+---
+sidebar_position: 1
+title: Introduction
+---
+
+# Alapa Components
+
+Alapa Components offer a robust, React-like templating experience for your applications. They are reusable, customizable, and designed to seamlessly integrate into your templates.
+
+## Key Features
+
+- **Component Structure**: Defined using HTML-like syntax with the `<component>` tag.
+- **Reusability**: Import and use components across your project.
+- **Dynamic Rendering**: Use attributes like `props`, `content`, and `attributes` to customize rendering dynamically.
+
+---
+
+## Getting Started
+
+### Creating a Component
+
+Components are defined with the `<component>` tag in a `.html` file. Below is an example of a `Layout` component:
+
+<CodeScreen title="views/components/layout.html">
+
+```tsx
+
+{% import '/components/navbar.html' %}
+
+<component default Layout props>
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>My Alapa App</title>
+      <link rel="stylesheet" href="{{static('css/app.css')}}" />
+    </head>
+    <body class="bg-gray-100 dark:bg-gray-900 dark:text-gray-300">
+      <x:NavBar />
+      <Render props.content />
+    </body>
+    <script src="{{static('js/app.js')}}"></script>
+  </html>
+</component>
+```
+
+</CodeScreen>
+
+### Using the Layout Component
+
+<CodeScreen title="views/index.html">
+
+```tsx
+{% import "/components/layout.html" %}
+<X:Layout>
+  <div>
+    <p>Hello, World</p>
+  </div>
+</X:Layout>
+```
+
+ </CodeScreen>
+
+## Component Properties
+
+### 1. **Props**
+
+`props` contains the properties passed to a component. For example:
+
+#### Creating a Button Component:
+
+<CodeScreen title="/views/components/button.html">
+
+```tsx
+<component Button props>
+  <button class="btn" type="{{ props.type }}">
+    <Render props.content />
+  </button>
+</component>
+```
+
+</CodeScreen>
+
+#### Using the Button Component:
+
+<CodeScreen title="/views/index.html">
+
+```tsx
+{% import {Button} from '/components/button'; %}
+<X:Button type="button">My Button</X:Button>
+```
+
+</CodeScreen>
+
+**Output:**
+
+<BrowserWindow src>
+  ```html
+  <button class="btn" type="button">
+    My Button
+  </button>
+  ```
+</BrowserWindow>
+
+### 2. **Content**
+
+`content` is shorthand for `props.content` and represents the inner content of a component.
+
+#### Example:
+
+<CodeScreen title="views/components/button.html">
+
+```tsx
+<component default Button props>
+  <button class="btn" type="{{ props.type }}">
+    <Render content />
+  </button>
+</component>
+```
+
+</CodeScreen>
+
+**Usage:**
+
+<CodeScreen title="views/index.html">
+
+```tsx
+{% import '/components/button'; %}
+<X:Button type="button">Click Me!</X:Button>
+```
+
+</CodeScreen>
+
+**Output:**
+
+<BrowserWindow src>
+  ```html
+  <button class="btn" type="button">
+    Click Me!
+  </button>
+  ```
+</BrowserWindow>
+
+### 3. **Attributes**
+
+Attributes provide raw or processed values for customizing the component.
+
+#### Example:
+
+<CodeScreen title="views/components/button.html">
+
+```tsx
+<component default Button props>
+  <button class="btn" type="{{ attributes.type }}">
+    <Render content />
+  </button>
+</component>
+```
+
+</CodeScreen>
+
+**Usage:**
+
+<CodeScreen title="views/button.html">
+
+```tsx
+{% import Button from '/components/button'; %}
+<X:Button type="button">Submit</X:Button>
+```
+
+</CodeScreen>
+
+**Output:**
+
+<BrowserWindow src>
+
+```html
+<button class="btn" type="button">Submit</button>
+```
+
+</BrowserWindow>
+
+### 4. **String Attributes**
+
+`stringAttributes` passes raw strings directly into the component.
+
+#### Example:
+
+<CodeScreen title="views/components/button.html">
+```tsx
+<component default Button props>
+  <button class="btn" {{{ props.stringAttributes }}}>
+    <Render content />
+  </button>
+</component>
+```
+</CodeScreen>
+
+**Usage:**
+
+<CodeScreen title="views/components/button.html">
+```tsx
+{% import button from '/components/button'; %}
+<X:Button id="uniqueButton" type="submit">Send</X:Button>
+```
+</CodeScreen>
+
+<BrowserWindow src>
+**Output:**
+
+```html
+<button class="btn" id="uniqueButton" type="submit">Send</button>
+```
+
+</BrowserWindow>
+
+---
+
+## Importing Components
+
+Alapa allows flexible import styles to include components in your templates. Examples include:
+
+<CodeScreen>
+
+```js
+{%
+import { Button, Input } from 'modules/form';
+import Default { OtherComponent } from 'component/path';
+
+// Import with alias
+import { Button as PrimaryButton } from 'form';
+
+// Default imports
+import DefaultMember from 'components/default.component';
+import 'component/button';
+
+// Dynamic import
+import('component/button')
+%}
+
+```
+
+</CodeScreen>

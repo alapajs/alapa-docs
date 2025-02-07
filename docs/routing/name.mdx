@@ -1,0 +1,75 @@
+---
+sidebar_position: 2
+---
+
+# Named Routes
+
+Named routes allow you to reference routes by their assigned names instead of hardcoding URLs. This improves maintainability and readability in your application.
+
+## Defining Named Routes
+
+You can assign names to routes while defining them, making it easier to reference them later.
+
+<CodeScreen title="src/app/users/routes.ts">
+
+```ts
+import { Router } from "alapa";
+import register from "account/register";
+import login from "account/login";
+
+const userRoutes = new Router();
+
+// Assigning names to routes
+userRoutes.all("/register", register).name("register");
+userRoutes.all("/login", login).name("login");
+
+export default userRoutes;
+```
+
+</CodeScreen>
+
+## Creating Route Handlers
+
+Each named route should have a corresponding handler. Here’s an example of a login handler:
+
+<CodeScreen title="src/app/account/login.ts">
+
+```ts
+import { Request, Response } from "alapa";
+
+const login = async (req: Request, res: Response) => {
+  return res.render("login");
+};
+
+export default login;
+```
+
+</CodeScreen>
+
+## Using Named Routes in Templates
+
+You can reference named routes within your templates to generate dynamic links.
+
+<CodeScreen title="views/login.html">
+
+```tsx
+<a href="{{ route('register') }}">Register</a>
+<!-- OR -->
+<a href="{{ url('register') }}">Register</a>
+```
+
+</CodeScreen>
+
+## Expected Output
+
+<BrowserWindow title="login" src>
+
+```tsx
+<a href="http://localhost:3000/register">Register</a>
+<!-- OR -->
+<a href="http://localhost:3000/register">Register</a>
+```
+
+</BrowserWindow>
+
+By using named routes, you ensure that changes to route paths require only a single update at the definition level, preventing unnecessary modifications across multiple files.

@@ -1,0 +1,83 @@
+---
+sidebar_position: 1
+title: Getting Started
+---
+
+# **Alapa Template Engine Overview**
+
+The Alapa Template Engine enables developers to build dynamic HTML files using its unique and intuitive syntax. It supports embedding JavaScript expressions, rendering variables, and working with raw HTML, making it an efficient choice for template-based development. The default file extension for Alapa templates is `.html`.
+
+---
+
+## **Core Syntax**
+
+### **1. Expressions**
+
+Expressions allow you to execute JavaScript directly within the template. They are enclosed within `{%` and `%}`:
+
+<CodeScreen>
+```js
+{% console.log("Hello, World!") %}
+```
+</CodeScreen>
+
+**Output:**
+
+<BrowserWindow>Hello, World!</BrowserWindow>
+
+:::warning
+Expressions must be valid JavaScript code.
+:::
+
+---
+
+### **2. Outputting Variables**
+
+To display variable values, use double curly braces `{{` and `}}`:
+
+<CodeScreen>
+
+```html
+<p>{{ myVariable }}</p>
+```
+
+</CodeScreen>
+**For raw HTML content**, use triple curly braces `{{{` and `}}}`:
+<CodeScreen>
+```html
+<div>{{{ rawHTMLContent }}}</div>
+```
+</CodeScreen>
+---
+
+### **3. Comments**
+
+You can add comments to your templates to improve code clarity. There are two types of comments:
+
+#### **Template Comments**
+
+Template comments are enclosed within `{#` and `#}`. They support both single-line and multi-line comments:
+
+<CodeScreen>
+
+```js
+{# This is a template comment. It can span multiple lines. #}
+```
+
+</CodeScreen>
+#### **Expression Comments**
+
+Within JavaScript expressions, you can use standard JavaScript commenting styles:
+
+<CodeScreen>
+
+```js
+{%
+/*
+This is a multi-line comment
+*/
+// This is a single-line comment
+%}
+```
+
+</CodeScreen>

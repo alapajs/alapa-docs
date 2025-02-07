@@ -1,0 +1,192 @@
+---
+sidebar_position: 1
+title: Basic Routing
+---
+
+# **Basic Routing**
+
+Alapa provides a straightforward and flexible routing system for handling HTTP requests. Its routing design is similar to Express, allowing developers to define routes for various HTTP methods easily.
+
+---
+
+## **Defining Routes**
+
+Routes are defined using the `Router` class, which maps specific HTTP methods and URLs to handler functions. Below is an example of a basic route definition:
+
+<CodeScreen title="src/app/index.ts">
+
+```ts
+import { Router, Request, Response } from "alapa";
+
+const indexRoute = new Router();
+
+// GET Route
+indexRoute.get("/", (req: Request, res: Response) => {
+  res.send("Welcome to my site!");
+});
+
+export default indexRoute;
+```
+
+</CodeScreen>
+After Defining index Route you can now connect to application routes as show bellow
+
+<CodeScreen title="src/app/routes.ts">
+```ts
+import { Router } from 'alapa'
+import { indexRoute } from './index'
+
+const allRoutes = new Router()
+
+allRoutes.use(indexRoute)
+
+export allRoutes
+```
+</CodeScreen>
+
+<BrowserWindow title="/">Welcome to my site!</BrowserWindow>
+
+## **Supported HTTP Methods**
+
+Alapa supports all common HTTP methods, such as:
+
+- `GET`
+- `POST`
+- `PUT`
+- `PATCH`
+- `DELETE`
+- `OPTIONS`
+- `ALL`
+
+Each method is mapped using a corresponding function (`router.get`, `router.post`, etc.).
+
+### Example:
+
+<CodeScreen title="">
+
+```ts
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+// POST Route
+router.post("/submit", (req: Request, res: Response) => {
+  const { name, email } = req.body;
+  res.send(`Data received: Name: ${name}, Email: ${email}`);
+});
+
+// PUT Route
+router.put("/update", (req: Request, res: Response) => {
+  const { id, data } = req.body;
+  res.send(`Updating record ${id} with data: ${JSON.stringify(data)}`);
+});
+
+// All Route
+router.all("/login", (req: Request, res: Response) => {
+  const { user, password } = req.body;
+  res.send(`The method is ${req.method}`);
+});
+
+// DELETE Route
+router.delete("/remove/:id", (req: Request, res: Response) => {
+  const { id } = req.params;
+  res.send(`Record ${id} has been deleted.`);
+});
+```
+
+</CodeScreen>
+
+---
+
+## **Route Parameters**
+
+Dynamic segments can be added to routes using the `:` syntax. Parameters are accessible via `req.params`.
+
+### Example:
+
+<CodeScreen title="">
+
+```ts
+import { Router, Request, Response } from "alapa";
+const userRoutes = new Router();
+
+userRoutes.get("/users/:id", (req: Request, res: Response) => {
+const id = req.params.id;
+res.send(`Fetching details for user with ID: ${id}`);
+});
+export userRoutes
+
+```
+
+</CodeScreen>
+
+---
+
+<BrowserWindow title="users/1">
+  Fetching details for user with ID: 1
+</BrowserWindow>
+
+## **Query Strings**
+
+You can handle query strings in routes using `req.query`.
+
+### Example:
+
+<CodeScreen title="src/app/search.ts">
+```ts
+router.get("/search", (req: Request, res: Response) => {
+  const { keyword, page } = req.query;
+  res.send(`Search results for '${keyword}' on page ${page}`);
+});
+```
+</CodeScreen>
+
+<BrowserWindow title="search?keyword=foo&page=2">
+  Search results for `foo` on page `2`
+</BrowserWindow>
+
+---
+
+## **Default Route (404 Handling)**
+
+To handle undefined routes, you can define a fallback route:
+
+<CodeScreen title="src/app/routes.ts">
+```ts
+appRouter.all("*", (req: Request, res: Response) => {
+  res.status(404).send("Page not found");
+});
+```
+</CodeScreen>
+
+---
+
+## **Grouping Routes**
+
+Organize your routes by grouping them using separate files or route prefixes.
+
+### Example:
+
+<CodeScreen title="src/app/routes.ts">
+```ts
+const userRouter = new Router();
+userRouter.get("/profile", (req: Request, res: Response) => {
+  res.send("User profile");
+});
+
+const appRouter = new Router();
+appRouter.use("/users", userRouter);
+
+```
+</CodeScreen>
+Now, all routes under `userRouter` will be prefixed with `/users`.
+
+<BrowserWindow title="users/profile">
+User profile
+</BrowserWindow>
+
+---
+
+## **Summary**
+
+Alapa routing is highly intuitive, enabling developers to handle routes, parameters, query strings, and even custom route grouping with ease.
+```
