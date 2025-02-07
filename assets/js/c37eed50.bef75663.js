@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkalapa_doc=self.webpackChunkalapa_doc||[]).push([[7669],{9672:a=>{a.exports=JSON.parse('{"metadata":{"permalink":"/alapa-docs/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":4,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

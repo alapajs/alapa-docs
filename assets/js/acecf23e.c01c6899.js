@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkalapa_doc=self.webpackChunkalapa_doc||[]).push([[1903],{1912:a=>{a.exports=JSON.parse('{"blogBasePath":"/alapa-docs/blog","blogTitle":"Blog","authorsListPath":"/alapa-docs/blog/authors"}')}}]);
