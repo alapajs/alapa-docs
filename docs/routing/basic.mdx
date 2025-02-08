@@ -167,6 +167,7 @@ Organize your routes by grouping them using separate files or route prefixes.
 ### Example:
 
 <CodeScreen title="src/app/routes.ts">
+
 ```ts
 const userRouter = new Router();
 userRouter.get("/profile", (req: Request, res: Response) => {
@@ -175,13 +176,15 @@ userRouter.get("/profile", (req: Request, res: Response) => {
 
 const appRouter = new Router();
 appRouter.use("/users", userRouter);
-
 ```
+
 </CodeScreen>
 Now, all routes under `userRouter` will be prefixed with `/users`.
 
 <BrowserWindow title="users/profile">
+
 User profile
+
 </BrowserWindow>
 
 ---
@@ -189,4 +192,3 @@ User profile
 ## **Summary**
 
 Alapa routing is highly intuitive, enabling developers to handle routes, parameters, query strings, and even custom route grouping with ease.
-```

@@ -86,8 +86,8 @@ const config: Config = {
           label: 'Docs',
         },
         {to: '/roadmap', label: 'Road Map', position: 'left'},
-        {to: '/get-involve', label: 'Get Involve', position: 'left'},
-        {to: '/sponsorship', label: 'Sponsorship 🤝', position: 'left'},
+        {to: '/contribute', label: 'Contribute', position: 'left'},
+        {to: '/sponsor', label: 'Become a Sponsor 🤝', position: 'left'},
         {
           href: 'https://github.com/alapajs/alapa',
           label: 'GitHub',
@@ -104,6 +104,9 @@ const config: Config = {
             {
               label: 'Tutorial',
               to: '/docs/',
+            },  {
+              label: 'Roadmap',
+              to: '/roadmap/',
             },
           ],
         },
@@ -114,14 +117,18 @@ const config: Config = {
               label: 'Discord',
               href: 'https://discord.com/invite/nPqTeJ8SgK',
             },
+            {
+              label: 'X',
+              href: 'https://x.com/alapadev',
+            },
           ],
         },
         {
           title: 'More',
           items: [
             {
-              label: 'Sponsorship',
-              to: '/sponsorship',
+              label: 'Become a Sponsor',
+              to: '/sponsor',
             },
             {
               label: 'GitHub',

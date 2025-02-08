@@ -61,6 +61,8 @@ dashboardRoutes.middleware(dashboardMiddle);
 
 </CodeScreen>
 
+<!---
+
 ---
 
 ## **Alias Middleware**
@@ -113,6 +115,7 @@ router.use("myAuth");
 </CodeScreen>
 
 This allows you to reuse `myAuthMiddleware` without explicitly referencing its implementation.
+-->
 
 ---
 
@@ -153,6 +156,7 @@ Here, the logger middleware logs the request details before the authentication m
 
 ---
 
+<!--
 ## **Route-Specific Middleware**
 
 Middleware can also be applied to specific routes instead of an entire router instance.
@@ -198,6 +202,7 @@ useGlobalMiddleware(globalLogger);
 ```
 
 </CodeScreen>
+-->
 
 ## **Error-Handling Middleware**
 

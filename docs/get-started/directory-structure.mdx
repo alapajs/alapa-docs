@@ -1,3 +1,196 @@
-```
+---
+title: "Directory Structure"
+---
+
+# **Alapa Directory Structure**
+
+When you generate a new Alapa project using the command `npx create-alapa-app [ProjectName]`, you’ll get a well-organized and modular directory structure designed to make development intuitive, scalable, and maintainable. Below is a detailed breakdown of the key directories and files in an Alapa starter project:
+
+<CodeScreen>
 
 ```
+/
+├── dev/
+│   ├── index.js
+│   └── refresh.js
+├── docs/
+│   ├── generate.ts
+│   └── schemas/
+├── migration-runner/
+│   ├── data-source.ts
+│   ├── generate.ts
+│   └── run.ts
+├── public/
+│   ├── src/
+│   ├── styles/
+│   └── application.scss
+├── src/
+│   ├── index.ts
+│   ├── api/
+│   │   ├── routes.ts
+│   │   └── index.ts
+│   ├── apps/
+│   │   ├── routes.ts
+│   │   └── index.ts
+│   ├── config/
+│   ├── models/
+│   │   └── user.ts
+│   └── shared/
+│       └── index.ts
+├── static/
+│   ├── images/
+│   ├── js/
+│   │   └── app.js
+│   ├── css/
+│   │   ├── app.css
+│   │   └── styles.css
+├── test/
+├── node_modules/
+├── views/
+│   ├── components/
+│   ├── error/
+│   └── index.html
+├── .env
+├── Dockerfile
+├── alapa-env.d.ts
+├── eslint.config.mjs
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── readme.md
+├── tailwind.config.js
+└── tsconfig.json
+```
+
+</CodeScreen>
+
+### **Root Directory (`/`)**
+
+The root directory contains configuration files, environment settings, and project metadata. Here’s what you’ll find:
+
+- **`.env`**: Stores environment variables such as API keys, database credentials, and other sensitive or environment-specific settings.
+- **`Dockerfile`**: Defines the Docker image configuration for containerizing the application.
+- **`alapa-env.d.ts`**: A TypeScript declaration file for environment variables or custom types.
+- **`eslint.config.mjs`**: Configuration file for ESLint, ensuring code quality and consistency.
+- **`package.json`** and **`package-lock.json`**: Define project dependencies, scripts, and metadata.
+- **`postcss.config.js`**: Configuration for PostCSS, used for processing CSS with plugins like Tailwind CSS.
+- **`readme.md`**: Documentation for the project, including setup instructions, usage, and other relevant information.
+- **`tailwind.config.js`**: Configuration file for Tailwind CSS, a utility-first CSS framework.
+- **`tsconfig.json`**: TypeScript configuration file, defining compiler options and project settings.
+
+---
+
+### **Development Tools (`/dev`)**
+
+This directory contains scripts and tools for development purposes:
+
+- **`index.js`**: The entry point for development-specific scripts or tools.
+- **`refresh.js`**: A script to refresh browsers on changes.
+
+---
+
+### **Documentation (`/docs`)**
+
+Alapa’s documentation is generated and maintained here:
+
+- **`generate.ts`**: A script for generating API documentation.
+- **`schemas/`**: Contains schema definitions (e.g., `user.yaml`) for reference in your API documentation.
+
+---
+
+### **Database Migrations (`/migration-runner`)**
+
+This directory handles database migrations, ensuring smooth schema updates:
+
+- **`data-source.ts`**: Configuration for database migrations, likely using an ORM like TypeORM.
+- **`generate.ts`**: A script to generate new database migrations.
+- **`run.ts`**: A script to execute database migrations.
+
+---
+
+### **Public (`/public`)**
+
+This directory contains assets that are compiled using Webpack to generate static files:
+
+- **`src/`**: Contains source files for public assets (e.g., JavaScript, CSS, TypeScript).
+- **`styles/`**: Stores stylesheets, including preprocessed SCSS files.
+- **`application.scss`**: The main SCSS file for global styles.
+
+---
+
+### **Source Code (`/src`)**
+
+The core of the Alapa application, organized into modules for better maintainability:
+
+- **`index.ts`**: The main entry point of the application. This file initializes and starts the Alapa application, tying together all the modules and configurations.
+- **`api/`**: Contains API-related logic.
+  - **`routes.ts`**: Defines API routes.
+  - **`index.ts`**: Entry point for the API module.
+- **`apps/`**: Houses application-specific logic or sub-applications.
+  - **`routes.ts`**: Defines routes for the application.
+  - **`index.ts`**: Entry point for the application module.
+- **`config/`**: Houses configuration files for various aspects of the application. Files like api.ts, database.ts, auth.ts, etc., provide modular configuration for APIs, databases, authentication, and more.
+- **`models/`**: Contains data models, such as `user.ts`, defining the structure and behavior of database entities.
+- **`shared/`**: Stores shared utilities, helpers, or common functionality used across the application.
+
+---
+
+### **Static Files (`/static`)**
+
+Static files like images, JavaScript, and CSS are organized here:
+
+- **`images/`**: Stores static image assets.
+- **`js/`**: Contains JavaScript files, such as `app.js`, for client-side functionality.
+- **`css/`**: Houses CSS files, including `app.css` and `styles.css`, for styling the application.
+
+---
+
+### **Testing (`/test`)**
+
+This directory is reserved for test files (e.g., unit tests, integration tests) to ensure the application functions as expected. (Note: This directory is currently empty but is typically used for testing purposes.)
+
+---
+
+### **Views (`/views`)**
+
+The `views` directory is used for server-side rendering or templating:
+
+- **`components/`**: Stores reusable UI components.
+- **`error/`**: Contains error pages (e.g., 404, 500).
+- **`index.html`**: The main HTML file for the application’s front end.
+
+---
+
+### **Other Files and Directories**
+
+- **`node_modules/`**: Contains installed dependencies managed by npm or Yarn.
+
+---
+
+### **Why This Structure?**
+
+Alapa’s directory structure is designed with the following principles in mind:
+
+1. **Modularity**: Separating concerns (e.g., `api/`, `apps/`, `models/`) makes the codebase easier to maintain and scale.
+2. **Flexibility**: The empty `config/` directory allows developers to add custom configurations as needed, ensuring the structure adapts to the project’s requirements.
+3. **Static Assets**: The `static/` and `public/` directories ensure that static files like CSS, JavaScript, and images are organized and accessible.
+4. **Documentation and Tooling**: The `docs/` and `dev/` directories highlight a focus on documentation and development tooling.
+5. **TypeScript Support**: The presence of TypeScript files (`*.ts`) and `tsconfig.json` ensures strong typing and modern JavaScript practices.
+
+---
+
+### **Getting Started**
+
+To explore Alapa’s directory structure in action, generate a new project using the command:
+
+```bash
+npx create-alapa-app [ProjectName]
+```
+
+This will create a starter project with the above structure, ready for you to customize and build upon. Each directory is designed to be self-explanatory, making it easy for developers to understand and contribute to the project.
+
+For more details on how to use Alapa, check out the [Installation Guide](installation).
+
+---
+
+This structure reflects Alapa’s commitment to simplicity, flexibility, and developer productivity. Whether you’re building a small project or a large-scale application, Alapa’s organized approach ensures a smooth development experience.
