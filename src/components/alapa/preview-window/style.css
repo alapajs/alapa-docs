@@ -1,0 +1,199 @@
+:root {
+  --background-color-light: #ffffff;
+  --text-color-light: #000000;
+  --preview-background-light: #f8f8f8;
+  --header-background-light: #e0e0e0;
+  --title-background-light: #ffffff;
+  --button-close-light: #e74c3c;
+  --button-minimize-light: #f39c12;
+  --button-maximize-light: #2ecc71;
+  --scrollbar-thumb-light: #888;
+  --scrollbar-thumb-hover-light: #555;
+  --border-color-light: #ddd; /* Define border color for light theme */
+
+  --background-color-dark: #1b1b1d;
+  --text-color-dark: #f8f8f2;
+  --title-background-dark: #1b1b1d;
+  --preview-background-dark: #272727;
+  --header-background-dark: #444950;
+  --button-close-dark: #e74c3c;
+  --button-minimize-dark: #f39c12;
+  --button-maximize-dark: #2ecc71;
+  --scrollbar-thumb-dark: #888;
+  --scrollbar-thumb-hover-dark: #555;
+  --border-color-dark: #555; /* Define border color for dark theme */
+}
+
+[data-theme="light"] {
+  --background-color: var(--background-color-light);
+  --text-color: var(--text-color-light);
+  --preview-background: var(--preview-background-light);
+  --header-background: var(--header-background-light);
+  --title-background: var(--title-background-light);
+  --button-close: var(--button-close-light);
+  --button-minimize: var(--button-minimize-light);
+  --button-maximize: var(--button-maximize-light);
+  --scrollbar-thumb: var(--scrollbar-thumb-light);
+  --scrollbar-thumb-hover: var(--scrollbar-thumb-hover-light);
+  --border-color: var(
+    --border-color-light
+  ); /* Use border color for light theme */
+}
+
+[data-theme="dark"] {
+  --background-color: var(--background-color-dark);
+  --text-color: var(--text-color-dark);
+  --preview-background: var(--preview-background-dark);
+  --header-background: var(--header-background-dark);
+  --title-background: var(--title-background-dark);
+  --button-close: var(--button-close-dark);
+  --button-minimize: var(--button-minimize-dark);
+  --button-maximize: var(--button-maximize-dark);
+  --scrollbar-thumb: var(--scrollbar-thumb-dark);
+  --scrollbar-thumb-hover: var(--scrollbar-thumb-hover-dark);
+  --border-color: var(
+    --border-color-dark
+  ); /* Use border color for dark theme */
+}
+
+.preview-screen {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin: 20px auto;
+  position: relative;
+  border: solid var(--border-color) 1px; /* Apply border color */
+}
+
+.preview-screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--header-background);
+  color: var(--text-color);
+  padding: 10px;
+  font-weight: bold;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-size: 18px;
+  position: relative;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.apple-btn {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50%;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.apple-close {
+  background-color: var(--button-close); /* Red for close */
+}
+
+.apple-minimize {
+  background-color: var(--button-minimize); /* Yellow for minimize */
+}
+
+.apple-maximize {
+  background-color: var(--button-maximize); /* Green for maximize */
+}
+
+.header-title {
+  flex: 1;
+  text-align: center;
+  margin: auto 25px;
+  border-radius: 50px;
+  background-color: var(--title-background);
+  font-size: 15px;
+  font-weight: normal;
+}
+
+.header-right {
+  flex: 0 0 auto;
+  margin-right: 10px;
+}
+
+.hamburger-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 20px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.hamburger {
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-color);
+}
+
+.preview-container {
+  margin-top: 20px;
+}
+
+.preview-content {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 0 20px;
+  border: none;
+  width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  outline: none;
+}
+
+.preview-content::-webkit-scrollbar {
+  width: 1px;
+}
+
+.preview-content::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.preview-content::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+:root {
+  --rt-background-light: #ffffff; /* Light background color */
+  --rt-background-dark: #222222; /* Dark background color */
+  --rt-text-light: #000000; /* Light text color */
+  --rt-text-dark: #ffffff; /* Dark text color */
+}
+
+/* Light theme specific styles */
+[data-theme="light"] {
+  --rt-background-color: var(--rt-background-light);
+  --rt-text-color: var(--rt-text-light); /* Light theme text color */
+}
+
+/* Dark theme specific styles */
+[data-theme="dark"] {
+  --rt-background-color: var(--rt-background-dark);
+  --rt-text-color: var(--rt-text-dark); /* Dark theme text color */
+}
+
+.dark,
+.light {
+  background-color: var(--rt-background-color);
+  color: var(--rt-text-color);
+}
+
+.copy-feedback {
+  margin-left: 10px;
+  color: green;
+  font-size: 12px;
+}

@@ -1,5 +1,5 @@
 import React from "react";
-import "./style.css";
+import "../preview-window/style.css";
 
 const BrowserWindow = ({
   children,
@@ -15,6 +15,7 @@ const BrowserWindow = ({
     title = title.substring(1);
   }
   let link = `http://localhost:3000/${title}`;
+
   return (
     <>
       {!src ? (
@@ -23,7 +24,7 @@ const BrowserWindow = ({
           <a target="_blank" href={link}>
             {link}
           </a>{" "}
-          on your browser, you should see the result as showed below.
+          on your browser, you should see the result as shown below.
         </div>
       ) : (
         <div>
@@ -31,12 +32,12 @@ const BrowserWindow = ({
           <a target="_blank" href={link}>
             {link}
           </a>{" "}
-          on your browser, you should see the result as showed below.
+          on your browser, you should see the result as shown below.
         </div>
       )}
 
-      <div className="browser-window">
-        <div className="browser-window-header">
+      <div className="preview-screen">
+        <div className="preview-screen-header">
           <div className="header-left">
             <div className="apple-btn apple-close"></div>
             <div className="apple-btn apple-minimize"></div>
@@ -53,8 +54,8 @@ const BrowserWindow = ({
             </div>
           </div>
         </div>
-        <div className="browser-window-container">
-          <div className="browser-screen">{children}</div>
+        <div className="preview-container">
+          <div className="preview-content">{children}</div>
         </div>
       </div>
     </>
