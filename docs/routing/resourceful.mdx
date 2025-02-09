@@ -1,17 +1,21 @@
 ---
-sidebar_position: 6
-title: Resource
+sidebar_position: 5
+title: Resource-Based
 ---
 
 # Resource-Based Routing in Alapa
 
-Resource-based routing in Alapa provides a streamlined way to define **CRUD (Create, Read, Update, Delete)** operations for a resource. This approach automatically maps common actions to specific routes, reducing boilerplate code and ensuring consistency across your application.
+Resource-based routing in Alapa provides a streamlined way to define **CRUD (Create, Read, Update, Delete)**
+operations for a resource. This approach automatically maps common actions to specific routes, reducing boilerplate
+code and ensuring consistency across your application.
 
 ---
 
 ## Introduction to Resource-Based Routing
 
-Resource-based routing is a convention-over-configuration approach that maps HTTP verbs to controller actions for a specific resource. For example, a `Book` resource might have routes for listing books, showing a specific book, creating a new book, updating a book, and deleting a book.
+Resource-based routing is a convention-over-configuration approach that maps HTTP verbs to controller
+actions for a specific resource. For example, a `Book` resource might have routes for listing books,
+showing a specific book, creating a new book, updating a book, and deleting a book.
 
 Alapa simplifies this process by automatically generating these routes when you define a **resourceful controller**.
 
@@ -33,9 +37,10 @@ When you define a resourceful controller, Alapa generates the following routes b
 
 ---
 
-## Implementing a Resource Controller
+## Implementing a Resourceful Controller
 
-To implement a resourceful controller, create a class that implements the `ResourcefulController` interface. Each method in the class corresponds to one of the default actions.
+To implement a resourceful controller, create a class that implements the `ResourcefulController` interface.
+Each method in the class corresponds to the actions.
 
 ### Example: BookController
 
@@ -49,12 +54,88 @@ export class BookController implements ResourcefulController {
   // List all books
   async index(req: Request, res: Response) {
     const books = await Book.findAll();
-    res.json(books);
+    res.render("books.index", { books });
   }
 
   // Show the form to create a new book (optional)
   create(req: Request, res: Response) {
     res.render("books.create");
+  }
+
+  // Store a newly created book
+  async store(req: Request, res: Response) {
+    const book = new Book();
+    book.title = req.body.title;
+    book.author = req.body.author;
+    await book.save();
+    res.navigate.back("success", "New Book Created Successfully");
+  }
+
+  // Show a specific book
+  async show(req: Request, res: Response) {
+    const book = await Book.find(req.params.book);
+    if (book) {
+      res.render("books.show", { book });
+    } else {
+      res.render("error.404", { message: "Book not found" });
+    }
+  }
+
+  // Show the form to edit a book (optional)
+  async edit(req: Request, res: Response) {
+    const book = await Book.find(req.params.book);
+    res.render("books.edit", { book });
+  }
+
+  // Update a specific book
+  async update(req: Request, res: Response) {
+    const book = await Book.find(req.params.book);
+    if (book) {
+      book.title = req.body.title;
+      book.author = req.body.author;
+      await book.save();
+      req.flash("success", "Book updated successfully");
+    } else {
+      req.flash("error", "Book not found");
+    }
+    res.navigate.back();
+  }
+
+  // Delete a specific book
+  async destroy(req: Request, res: Response) {
+    const book = await Book.find(req.params.book);
+    if (book) {
+      await book.delete();
+      req.flash("success", "Book deleted successfully");
+    } else {
+      req.flash("error", "Book not found");
+    }
+    res.navigate.route("books.index");
+  }
+}
+```
+
+</CodeScreen>
+
+---
+
+## RestfulResource (or ApiResource)
+
+For RESTful APIs, Alapa provides a specialized interface called `RestfulResource` (or `ApiResource`). This interface excludes methods like `create` and `edit`, which are typically used for rendering forms in web applications. Instead, it focuses on the core CRUD operations required for APIs.
+
+### Example: BookApiController
+
+<CodeScreen title="src/app/api/books/Controller.ts">
+
+```ts
+import { RestfulResource, Request, Response } from "alapa";
+import { Book } from "./Models"; // Assuming Book is a model representing your database entity.
+
+export class BookController implements RestfulResource {
+  // List all books
+  async index(req: Request, res: Response) {
+    const books = await Book.findAll();
+    res.json(books);
   }
 
   // Store a newly created book
@@ -74,12 +155,6 @@ export class BookController implements ResourcefulController {
     } else {
       res.status(404).json({ message: "Book not found" });
     }
-  }
-
-  // Show the form to edit a book (optional)
-  async edit(req: Request, res: Response) {
-    const book = await Book.find(req.params.book);
-    res.render("books.edit", { book });
   }
 
   // Update a specific book
@@ -110,23 +185,18 @@ export class BookController implements ResourcefulController {
 
 </CodeScreen>
 
----
+### Registering RestfulResource Routes
 
-## Registering Resourceful Routes
-
-To register the resourceful routes, use the `resource` method provided by the `Router` class. This method maps the controller methods to their respective routes.
-
-### Example: Registering Routes
-
-<CodeScreen title="src/app/books/router.ts">
+<CodeScreen title="src/app/api/books/router.ts">
 
 ```ts
 import { Router } from "alapa";
-import { BookController } from "./Controller";
+import { BookController } from "./ApiController";
 
 const bookRoutes = new Router();
-bookRoutes.resource("books", BookController);
-
+bookRoutes.restResource("books", BookApiController);
+// OR
+bookRoutes.apiResource("books", BookApiController);
 export default bookRoutes;
 ```
 
@@ -134,145 +204,38 @@ export default bookRoutes;
 
 This will generate the following routes:
 
-| HTTP Verb   | URL                 | Action    | Route Name      |
-| ----------- | ------------------- | --------- | --------------- |
-| `GET`       | `/books`            | `index`   | `books.index`   |
-| `GET`       | `/books/create`     | `create`  | `books.create`  |
-| `POST`      | `/books`            | `store`   | `books.store`   |
-| `GET`       | `/books/:book`      | `show`    | `books.show`    |
-| `GET`       | `/books/:book/edit` | `edit`    | `books.edit`    |
-| `PUT/PATCH` | `/books/:book`      | `update`  | `books.update`  |
-| `DELETE`    | `/books/:book`      | `destroy` | `books.destroy` |
+| HTTP Verb   | URL            | Action    | Route Name      |
+| ----------- | -------------- | --------- | --------------- |
+| `GET`       | `/books`       | `index`   | `books.index`   |
+| `POST`      | `/books`       | `store`   | `books.store`   |
+| `GET`       | `/books/:book` | `show`    | `books.show`    |
+| `PUT/PATCH` | `/books/:book` | `update`  | `books.update`  |
+| `DELETE`    | `/books/:book` | `destroy` | `books.destroy` |
 
 ---
 
-## Customizing Resourceful Routes
+## Using the `@Params` Decorator
 
-You can customize the default resourceful routes by excluding certain actions or adding additional routes.
+The `@Params` decorator is used to define dynamic segments in your routes. It allows you to specify the parameter names for resourceful routes.
 
-### Example: Excluding Routes
-
-<CodeScreen title="src/app/books/router.ts">
-
-```ts
-import { Router } from "alapa";
-import { BookController } from "./Controller";
-
-const bookRoutes = new Router();
-bookRoutes.resource("books", BookController, {
-  except: ["create", "edit"], // Exclude create and edit actions
-});
-
-export default bookRoutes;
-```
-
-</CodeScreen>
-
-### Example: Adding Additional Routes
-
-<CodeScreen title="src/app/books/router.ts">
-
-```ts
-import { Router } from "alapa";
-import { BookController } from "./Controller";
-
-const bookRoutes = new Router();
-bookRoutes.resource("books", BookController);
-
-// Add a custom route
-bookRoutes.get("/books/:book/reviews", (req, res) => {
-  res.send(`Reviews for book ${req.params.book}`);
-});
-
-export default bookRoutes;
-```
-
-</CodeScreen>
-
----
-
-## Middleware for Resourceful Routes
-
-Middleware can be applied to all resourceful routes or specific actions.
-
-### Example: Global Middleware
-
-<CodeScreen title="src/app/books/router.ts">
-
-```ts
-import { Router } from "alapa";
-import { BookController } from "./Controller";
-import { authMiddleware } from "../middleware";
-
-const bookRoutes = new Router();
-bookRoutes.resource("books", BookController, {
-  middlewareAll: [authMiddleware], // Apply to all routes
-});
-```
-
-</CodeScreen>
-
-### Example: Route-Specific Middleware
-
-<CodeScreen title="src/app/books/router.ts">
-
-```ts
-import { Router } from "alapa";
-import { BookController } from "./Controller";
-import { logMiddleware } from "../middleware";
-
-const bookRoutes = new Router();
-bookRoutes.resource("books", BookController, {
-  middleware: {
-    store: [logMiddleware], // Apply to the store action only
-  },
-});
-```
-
-</CodeScreen>
-
----
-
-## OpenAPI Documentation for Resourceful Routes
-
-You can use decorators like `@OpenApiOperation` to document your resourceful routes for OpenAPI/Swagger.
-
-### Example: Documenting Resourceful Routes
+### Example: Using `@Params`
 
 <CodeScreen title="src/app/books/Controller.ts">
 
 ```ts
-import {
-  ResourcefulController,
-  Request,
-  Response,
-  OpenApiOperation,
-} from "alapa";
+import { ResourcefulController, Request, Response, Params } from "alapa";
 import { Book } from "./Models";
 
 export class BookController implements ResourcefulController {
-  @OpenApiOperation({
-    summary: "List all books",
-    description: "Returns a list of all books.",
-    responses: {
-      200: {
-        description: "List of books",
-        content: {
-          "application/json": {
-            schema: {
-              type: "array",
-              items: {
-                $ref: "#/components/schemas/Book",
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-  async index(req: Request, res: Response) {
-    const books = await Book.findAll();
-    res.json(books);
+  // /books/:book/:author
+  @Params("author") // Define the parameter name
+  async show(req: Request, res: Response) {
+    const book = await Book.find(req.params.book);
+    if (book) {
+      res.render("books.show", { book });
+    } else {
+      res.navigate.back().withErrors("Book not found");
+    }
   }
 }
 ```
@@ -281,49 +244,189 @@ export class BookController implements ResourcefulController {
 
 ---
 
-## Controller Configuration Options
+## ResourcefulOptions Configuration
 
-All options available in **Controller-Based Routing** are also valid for **Resourceful Controllers**. These options allow you to customize the behavior of your resourceful routes.
+The `ResourcefulOptions` interface provides a wide range of options to customize resourceful routes. Below is a detailed breakdown of these options with examples:
 
-| Option Name     | Type   | Optional | Default Value                  | Description                                                  |
-| --------------- | ------ | -------- | ------------------------------ | ------------------------------------------------------------ |
-| `namePrefix`    | string | Yes      | undefined                      | Prefix added to the route names.                             |
-| `docPrefix`     | string | Yes      | Global `docPrefix` from config | Prefix added to the API documentation path.                  |
-| `middlewareAll` | array  | Yes      | []                             | Middleware applied to all routes in the controller.          |
-| `middleware`    | object | Yes      | \{\}                           | Middleware applied to specific routes, keyed by method name. |
+### `changeNamesWithVerbs`
 
-### Example: Using `namePrefix`
+- **Type**: `boolean`
+- **Default**: `true`
+- **Description**: Whether to change route names to use the provided verb names.
+
+#### Example:
 
 <CodeScreen title="src/app/books/router.ts">
 
 ```ts
-import { Router } from "alapa";
-import { BookController } from "./Controller";
-
-const bookRoutes = new Router();
 bookRoutes.resource("books", BookController, {
-  namePrefix: "app-books", // Add a prefix to route names
+  changeNamesWithVerbs: false, // User the default route names
 });
-
-export default bookRoutes;
 ```
 
 </CodeScreen>
 
-### Example: Using `docPrefix`
+### `paramNames`
+
+- **Type**: `string`
+- **Description**: Custom parameter names for dynamic segments in the route.
+
+#### Example:
 
 <CodeScreen title="src/app/books/router.ts">
 
 ```ts
-import { Router } from "alapa";
-import { BookController } from "./Controller";
+bookRoutes.resource("books", BookController, {
+  paramNames: "id", // Use `id` instead of `book` in the route
+});
+```
 
-const bookRoutes = new Router();
+</CodeScreen>
+
+### `docPrefix`
+
+- **Type**: `string`
+- **Description**: Prefix added to the API documentation path.
+
+#### Example:
+
+<CodeScreen title="src/app/books/router.ts">
+
+```ts
 bookRoutes.resource("books", BookController, {
   docPrefix: "api/v1", // Add a prefix to API documentation paths
 });
+```
 
-export default bookRoutes;
+</CodeScreen>
+
+### `createNames`
+
+- **Type**: `boolean`
+- **Default**: `true`
+- **Description**: Whether to create route names for create actions.
+
+#### Example:
+
+<CodeScreen title="src/app/books/router.ts">
+
+```ts
+bookRoutes.resource("books", BookController, {
+  createNames: false, // Exclude create route names
+});
+```
+
+</CodeScreen>
+
+### `namePrefix`
+
+- **Type**: `string`
+- **Description**: Prefix added to route names.
+
+#### Example:
+
+<CodeScreen title="src/app/books/router.ts">
+
+```ts
+bookRoutes.resource("books", BookController, {
+  namePrefix: "app-books", // Add a prefix to route names
+});
+```
+
+</CodeScreen>
+
+### `only`
+
+- **Type**: `string[] | string`
+- **Description**: Specify which routes to include.
+
+#### Example:
+
+<CodeScreen title="src/app/books/router.ts">
+
+```ts
+bookRoutes.resource("books", BookController, {
+  only: ["index", "show"], // Only include index and show routes
+});
+```
+
+</CodeScreen>
+
+### `except`
+
+- **Type**: `string[] | string`
+- **Description**: Specify which routes to exclude.
+
+#### Example:
+
+<CodeScreen title="src/app/books/router.ts">
+
+```ts
+bookRoutes.resource("books", BookController, {
+  except: ["create", "edit"], // Exclude create and edit routes
+});
+```
+
+</CodeScreen>
+
+### `verb`
+
+- **Type**: `ResourcefulVerb`
+- **Description**: Custom verb names for resourceful routes.
+
+#### Example:
+
+<CodeScreen title="src/app/books/router.ts">
+
+```ts
+bookRoutes.resource("books", BookController, {
+  verb: {
+    index: "list", // Use "list" instead of "index"
+    show: "detail", // Use "detail" instead of "show"
+  },
+});
+```
+
+</CodeScreen>
+
+### `middleware`
+
+- **Type**: `ResourcefulMiddleware`
+- **Description**: Middleware functions for resourceful routes.
+
+#### Example:
+
+<CodeScreen title="src/app/books/router.ts">
+
+```ts
+bookRoutes.resource("books", BookController, {
+  middleware: {
+    index: [authMiddleware], // Apply middleware to the index action
+    store: [logMiddleware], // Apply middleware to the store action
+  },
+});
+```
+
+</CodeScreen>
+
+### `mergeMiddleware`
+
+- **Type**: `boolean`
+- **Default**: `false`
+- **Description**: Whether to merge a single route middleware with the `before` middleware.
+
+#### Example:
+
+<CodeScreen title="src/app/books/router.ts">
+
+```ts
+bookRoutes.resource("books", BookController, {
+  middleware: {
+    before: [authMiddleware], // Apply middleware before all actions
+    index: [logMiddleware], // Apply middleware to the index action
+  },
+  mergeMiddleware: true, // Merge middleware for index with before middleware
+});
 ```
 
 </CodeScreen>
