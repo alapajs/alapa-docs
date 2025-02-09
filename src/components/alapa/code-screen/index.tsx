@@ -13,10 +13,10 @@ const PreviewScreen = ({ children, title }) => {
       });
     }
   };
-
+  const tooltipID = "tooltip-" + Math.random().toString();
   return (
     <>
-      <ReactTooltip id="my-tooltip-2" place="bottom" content="Click to copy" />
+      <ReactTooltip id={tooltipID} place="bottom" content="Click to copy" />
       <div className="preview-screen">
         <div className="preview-screen-header">
           <div className="header-left">
@@ -25,7 +25,7 @@ const PreviewScreen = ({ children, title }) => {
             <div className="apple-btn apple-maximize"></div>
           </div>
           <div
-            data-tooltip-id="my-tooltip-2"
+            data-tooltip-id={tooltipID}
             className="header-title"
             onClick={handleCopyClick}
           >

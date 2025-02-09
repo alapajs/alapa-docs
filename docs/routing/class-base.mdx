@@ -1,0 +1,118 @@
+---
+sidebar_position: 2
+title: Class Methods Handler
+---
+
+# Class Methods as Request Handlers
+
+Alapa provides a flexible and intuitive way to define route handlers using both **instance methods** and **static methods** within controller classes. By leveraging the `[Class, 'methodName']` syntax, you can seamlessly map routes to methods without needing to instantiate the controller class explicitly. This approach ensures consistency and simplifies routing configuration.
+
+---
+
+## Instance Methods as Request Handlers
+
+Instance methods are commonly used in object-oriented programming to encapsulate behavior tied to a specific instance of a class. In Alapa, you can use instance methods as route handlers without manually creating an instance of the controller class.
+
+### Example: Defining an Instance Method
+
+Below is an example of a controller with an instance method for handling a login request:
+
+<CodeScreen title="src/app/users/AuthController.ts">
+
+```ts
+import { Request, Response } from "alapa";
+
+export class UserAuthController {
+  // Instance method to handle login
+  login(req: Request, res: Response) {
+    res.send("Login Page");
+  }
+}
+```
+
+</CodeScreen>
+
+### Example: Registering the Instance Method in the Router
+
+To map the instance method to a route, use the `[Class, 'methodName']` syntax in your router configuration:
+
+<CodeScreen title="src/app/users/router.ts">
+
+```ts
+import { Router } from "alapa";
+import { UserAuthController } from "../AuthController";
+
+const userRoutes = new Router();
+
+// Map the instance method to the /login route
+userRoutes.get("/login", [UserAuthController, "login"]);
+
+export default userRoutes;
+```
+
+</CodeScreen>
+
+When a `GET` request is made to `/login`, Alapa will automatically invoke the `login` method on an instance of `UserAuthController`.
+
+---
+
+## Static Methods as Request Handlers
+
+Static methods are class-level methods that do not require an instance of the class to be invoked. Alapa allows you to use static methods as route handlers in the same way as instance methods, maintaining a consistent syntax.
+
+### Example: Defining a Static Method
+
+Here’s an example of a controller with a static method for handling a login request:
+
+<CodeScreen title="src/app/users/AuthController.ts">
+
+```ts
+import { Request, Response } from "alapa";
+
+export class UserAuthController {
+  // Static method to handle login
+  static login(req: Request, res: Response) {
+    res.send("Login Page");
+  }
+}
+```
+
+</CodeScreen>
+
+### Example: Registering the Static Method in the Router
+
+To map the static method to a route, use the same `[Class, 'methodName']` syntax:
+
+<CodeScreen title="src/app/users/router.ts">
+
+```ts
+import { Router } from "alapa";
+import { UserAuthController } from "../AuthController";
+
+const userRoutes = new Router();
+
+// Map the static method to the /login route
+userRoutes.get("/login", [UserAuthController, "login"]);
+
+export default userRoutes;
+```
+
+</CodeScreen>
+
+Alapa treats static methods identically to instance methods when mapping routes, ensuring a clean and consistent routing configuration.
+
+---
+
+## Benefits of Using `[Class, 'methodName']` Syntax
+
+The `[Class, 'methodName']` syntax offers several advantages:
+
+1. **Consistency**: Whether you use instance methods or static methods, the routing syntax remains the same. This reduces cognitive overhead and makes your codebase easier to maintain.
+2. **Flexibility**: You can switch between instance and static methods without modifying the routing structure, providing greater flexibility in how you organize your code.
+3. **Simplicity**: The syntax is concise and intuitive, reducing boilerplate code and improving readability.
+
+---
+
+## Summary
+
+Alapa’s routing system allows you to define route handlers using both instance methods and static methods within controller classes. By adopting the `[Class, 'methodName']` syntax, you can maintain a consistent and streamlined approach to routing, regardless of whether the method is instance-based or static. This design promotes clean, maintainable, and scalable code.
