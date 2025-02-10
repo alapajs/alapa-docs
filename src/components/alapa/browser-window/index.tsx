@@ -20,11 +20,11 @@ const BrowserWindow = ({
     <>
       {!src ? (
         <div>
-          When you open the link the{" "}
+          When you open the link{" "}
           <a target="_blank" href={link}>
             {link}
           </a>{" "}
-          on your browser, you should see the result as shown below.
+          in your browser, you should see the result shown below.
         </div>
       ) : (
         <div>
@@ -32,7 +32,7 @@ const BrowserWindow = ({
           <a target="_blank" href={link}>
             {link}
           </a>{" "}
-          on your browser, you should see the result as shown below.
+          in your browser, you should see the result shown below.
         </div>
       )}
 

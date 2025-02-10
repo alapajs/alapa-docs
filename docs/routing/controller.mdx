@@ -26,7 +26,7 @@ Below is an example of a controller class with method-based routing:
 ```ts
 import { Controller, Request, Response, Params } from "alapa";
 
-class UserController extends Controller {
+export class UserController extends Controller {
   // Handles GET /users
   getIndex(req: Request, res: Response) {
     res.send("Welcome to the user dashboard");
@@ -163,7 +163,7 @@ Alternatively, you can define the `docPrefix` directly within the controller cla
 ```ts
 import { Controller, Request, Response, Params } from "alapa";
 
-class UserController extends Controller {
+export class UserController extends Controller {
   docPrefix: string = "api/v1/";
 }
 ```
@@ -228,7 +228,7 @@ This approach centralizes route-specific logic, making it easier to manage.
 ```ts
 import { Controller, Request, Response, NextFunction } from "alapa";
 
-class UserController extends Controller {
+export class UserController extends Controller {
   // Middleware for /users
   useIndex(req: Request, res: Response, next: NextFunction) {
     console.log("Middleware for /users");
@@ -257,7 +257,7 @@ This decorator allows you to define dynamic segments in your routes.
 ```ts
 import { Controller, Request, Response, Params } from "alapa";
 
-class PostController extends Controller {
+export class PostController extends Controller {
   // Handles GET /posts/post/:postId/:userId
   @Params("postId", "userId")
   getPost(req: Request, res: Response) {
@@ -280,7 +280,7 @@ By using forward slashes (`/`), you can structure the URL as needed.
 ```ts
 import { Controller, Request, Response, Params } from "alapa";
 
-class PostController extends Controller {
+export class PostController extends Controller {
   // Handles GET /posts/post/:postId/user/:userId
   @Params("postId/user", "userId")
   getPost(req: Request, res: Response) {
@@ -310,7 +310,7 @@ Alapa ignores underscores when generating routes
 ```ts
 import { Controller, Request, Response, Params } from "alapa";
 
-class PostController extends Controller {
+export class PostController extends Controller {
   // Handles GET /posts/:postId/active
   @Params("postId/active")
   get_Index(req: Request, res: Response) {

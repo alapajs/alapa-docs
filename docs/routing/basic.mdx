@@ -34,13 +34,13 @@ After Defining index Route you can now connect to application routes as show bel
 <CodeScreen title="src/app/routes.ts">
 ```ts
 import { Router } from 'alapa'
-import { indexRoute } from './index'
+import indexRoute from './index'
 
-const allRoutes = new Router()
+const routes = new Router()
 
-allRoutes.use(indexRoute)
+routes.use(indexRoute)
 
-export allRoutes
+export default routes
 ```
 </CodeScreen>
 
@@ -103,18 +103,17 @@ Dynamic segments can be added to routes using the `:` syntax. Parameters are acc
 
 ### Example:
 
-<CodeScreen title="">
+<CodeScreen title="src/app/users/router.ts">
 
 ```ts
 import { Router, Request, Response } from "alapa";
 const userRoutes = new Router();
 
 userRoutes.get("/users/:id", (req: Request, res: Response) => {
-const id = req.params.id;
-res.send(`Fetching details for user with ID: ${id}`);
+  const id = req.params.id;
+  res.send(`Fetching details for user with ID: ${id}`);
 });
-export userRoutes
-
+export default userRoutes;
 ```
 
 </CodeScreen>
@@ -143,6 +142,69 @@ router.get("/search", (req: Request, res: Response) => {
 <BrowserWindow title="search?keyword=foo&page=2">
   Search results for `foo` on page `2`
 </BrowserWindow>
+
+## `router.all` Route
+
+The `all` method is a special route handler that matches **all HTTP methods** (GET, POST, PUT, DELETE, etc.) for a specific route. This is useful when you want to handle multiple types of requests on the same route but with different behavior depending on the HTTP method being used.
+
+### **How the `all` Method Works:**
+
+- The `router.all("/login", ...)` route will match any HTTP method that targets the `/login` path.
+- Inside the route handler, `req.method` contains the HTTP method used for that specific request (such as GET, POST, PUT, etc.).
+- This allows you to write a single route handler for multiple methods and handle them dynamically based on the value of `req.method`.
+
+### **Example Breakdown:**
+
+<CodeScreen title="src/app/account/login.html">
+
+```ts
+router.all("/login", (req: Request, res: Response) => {
+  const { user, password } = req.body;
+  res.send(`The method is ${req.method}`);
+});
+```
+
+</CodeScreen>
+
+- **Request Handling:** This route handler will fire for any HTTP method (GET, POST, PUT, DELETE, etc.) that matches `/login`.
+- **Dynamic Response Based on Method:** The `req.method` value is dynamically injected based on the method that was used to make the request. For example:
+  - If the request is a `GET`, `req.method` will be `"GET"`.
+  - If the request is a `POST`, `req.method` will be `"POST"`.
+- The response will simply echo the HTTP method being used in the request.
+
+### **Use Case of `req.method`:**
+
+- **POST Request:** If you send a `POST` request to `/login`, the handler will process the login form (using `req.body` to get the user and password) and return a message like: `The method is POST`.
+- **GET Request:** If you send a `GET` request to `/login`, it will still match the route, but now `req.method` will return `"GET"`, and you can decide to return a different message or handle it in a different way.
+
+### **Example with Different Behavior:**
+
+<CodeScreen title="src/app/account/login.html">
+
+```ts
+router.all("/login", (req: Request, res: Response) => {
+  if (req.method === "POST") {
+    const { user, password } = req.body;
+    res.send(`Login submitted with user: ${user}`);
+  } else if (req.method === "GET") {
+    res.render("account/login");
+  } else {
+    res.send(`Unsupported method: ${req.method}`);
+  }
+});
+```
+
+</CodeScreen>
+
+- If the method is `POST`, it will process the login details.
+- If the method is `GET`, it will render `views/account/login.html` template.
+- For any other HTTP method (like PUT, DELETE), it will return a message stating the method is unsupported.
+
+### **Why Use `all` Route?**
+
+The `all` route is useful when you want to capture all possible HTTP methods for a specific URL and handle them accordingly. However, in many cases, it might be more readable and maintainable to use method-specific routes (e.g., `router.get()`, `router.post()`, etc.) when you know you only need to handle one HTTP method at a time.
+
+The `all` method is more suitable for situations where the behavior needs to vary dynamically based on the method being used.
 
 ---
 
@@ -175,7 +237,9 @@ userRouter.get("/profile", (req: Request, res: Response) => {
 });
 
 const appRouter = new Router();
-appRouter.use("/users", userRouter);
+appRouter.use("/users", userRouter); // This handles routes prefixed with "/users"
+
+export default appRouter;
 ```
 
 </CodeScreen>
