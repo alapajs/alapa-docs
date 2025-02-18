@@ -1,0 +1,128 @@
+---
+sidebar_position: 8
+title: Containers
+---
+
+# Containers in Alapa
+
+Alapa Containers are a powerful feature designed to help you organize and inject scripts, styles, or custom HTML content throughout your application. With Containers, you can write scripts, styles, or custom HTML anywhere in your code and render them in a single location (e.g., scripts at the footer, styles in the head). This approach provides unparalleled flexibility in managing your page structure and content rendering, making your codebase cleaner, more modular, and easier to maintain.
+
+---
+
+## How Containers Work
+
+Alapa Containers rely on two core components: **`Push`** and **`Stack`**.
+
+- **`Push`**: Defines and stores content (scripts, styles, or custom HTML) for later use.
+- **`Stack`**: Renders the pushed content in a specific location.
+
+Together, these components allow you to write content in one place and render it in another, giving you full control over your application's structure.
+
+---
+
+### Push Component
+
+The `Push` component is designed to "push" content—like JavaScript, CSS, or custom HTML—to specific locations in your code. It is highly flexible, allowing you to define custom names for different types of content.
+
+#### Example: Pushing Scripts, Styles, and Custom HTML
+
+In this example, we use the `Push` component to define a script, inline styles, and custom HTML content. These will be rendered later using the `Stack` component.
+
+<CodeScreen title="views/index.html">
+
+```tsx
+{% import Wrapper from '/components/wrapper.html' %}
+
+<X:Wrapper>
+  <Push script>
+    <script>
+      console.log("Hello, world!");
+    </script>
+  </Push>
+
+  <Push style>
+    <style>
+      .alert {
+        background-color: #f44336;
+        color: white;
+      }
+    </style>
+  </Push>
+
+  <Push customContent>
+    <div class="alert">This is a custom HTML alert message!</div>
+  </Push>
+
+</X:Wrapper>
+```
+
+</CodeScreen>
+
+---
+
+### Stack Component
+
+The `Stack` component is used to render content that has been pushed using the `Push` component. It ensures that your content is injected exactly where you need it, whether it's in the `<head>`, `<body>`, or even the footer of your page.
+
+#### Example: Rendering Pushed Content
+
+<CodeScreen title="views/components/wrapper.html">
+
+```html
+<component default Wrapper>
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <Stack style />
+    </head>
+
+    <body>
+      <Stack customContent />
+    </body>
+
+    <Stack script />
+  </html>
+</component>
+```
+
+</CodeScreen>
+
+The following HTML is rendered by the `Stack` component based on the content pushed earlier:
+
+<BrowserWindow src>
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      .alert {
+        background-color: #f44336;
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="alert">This is a custom HTML alert message!</div>
+  </body>
+
+  <script>
+    console.log("Hello, world!");
+  </script>
+</html>
+```
+
+</BrowserWindow>
+
+---
+
+## Summary
+
+Alapa Containers provide a robust and flexible system for managing and injecting content throughout your application. Key features include:
+
+- **Flexibility in Content Injection**: Write scripts, styles, or HTML anywhere and render them in a single location.
+- **Dynamic Content Rendering**: Use `Stack` to render pushed content dynamically, ensuring precise control over placement.
+- **Customizable and Extendable**: Define custom block names and extend functionality for advanced use cases.
+
+Ready to streamline your code with Alapa Containers? Start using `Push` and `Stack` today to organize and inject content with ease!
