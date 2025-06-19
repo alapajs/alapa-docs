@@ -1,0 +1,172 @@
+---
+sidebar_position: 2
+title: Schema
+---
+
+# API Schema Documentation
+
+Alapa supports reusable OpenAPI schemas to document your API endpoints, improving maintainability and reducing code duplication. All schema files are organized in the `docs/schemas` directory.
+
+## Defining a Schema
+
+Schemas are defined in YAML files and can represent:
+
+- Objects
+- Arrays
+- Enums
+- Other complex data types
+
+### Example: Album Object Schema
+
+<CodeScreen title="docs/schemas/album/info.yaml">
+
+```yaml
+# highlight-next-line
+Albums: # Schema identifier for references - MUST be unique across all schemas
+  type: object
+  properties:
+    id:
+      type: string
+    title:
+      type: string
+    artist:
+      type: string
+    releaseDate:
+      type: string
+      format: date
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+```
+
+</CodeScreen>
+This schema defines an Album object with core metadata and automatic timestamp fields, reusable across endpoints.
+
+:::warning **Schema Naming Rules:**  
+Each schema requires a globally unique name (case-sensitive, e.g.,
+UserProfile ≠ userprofile), and duplicate names will silently override existing definitions.
+:::
+
+## Schema References
+
+Reference schemas by name using the `$ref` notation:
+
+<CodeScreen title="src/api/album/Controller.ts">
+```ts
+data: {
+  $ref: "#components/schemas/Albums";
+}
+```
+</CodeScreen>
+
+Alapa's decorator system automatically incorporates these references into generated Swagger/OpenAPI documentation.
+
+### Single Object Response
+
+<CodeScreen title="src/api/album/Controller.ts">
+
+```ts
+@OpenApiOperation({
+  summary: "Get an album by ID",
+  description: "Returns an album by its ID",
+  parameters: [{
+    name: "album",
+    in: "path",
+    required: true
+  }],
+  responses: {
+    200: {
+      description: "Success response",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              status: { type: "string", example: "success" },
+              message: { type: "string", example: "Album fetched successfully" },
+              // highlight-next-line
+              data: { $ref: "#components/schemas/Albums" }
+            }
+          }
+        }
+      }
+    }
+  }
+})
+```
+
+</CodeScreen>
+
+### Array Response Example
+
+<CodeScreen title="src/api/album/Controller.ts">
+
+```ts
+@OpenApiOperation({
+  summary: "Get all albums",
+  description: "Returns all albums",
+  responses: {
+    200: {
+      description: "Success response",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              status: { type: "string", example: "success" },
+              message: { type: "string", example: "Albums fetched successfully" },
+              data: {
+                type: "array",
+                // highlight-next-line
+                items: { $ref: "#components/schemas/Albums" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+})
+```
+
+</CodeScreen>
+
+## Custom Schema Locations
+
+Configure the schema directory path in your API configuration:
+
+<CodeScreen title="src/config/api.ts">
+
+```ts
+import { APIConfiguration } from "alapa";
+
+export const apiConfig: APIConfiguration = {
+  docs: {
+    // highlight-next-line
+    schemasDir: process.env.DOCS_SCHEMAS_DIR || "docs/schemas",
+  },
+  // ... other configuration
+};
+```
+
+</CodeScreen>
+
+Override the default path via environment variable:
+
+<CodeScreen title=".env">
+
+```env
+DOCS_SCHEMAS_DIR=custom/path/to/schemas
+```
+
+</CodeScreen>
+
+## Key Advantages
+
+▸ **Consistent Documentation** - Uniform structure across all endpoints  
+▸ **Single Source of Truth** - Changes propagate automatically  
+▸ **Reduced Duplication** - Eliminate repetitive definitions  
+▸ **Flexible Configuration** - Customizable storage location

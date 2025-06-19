@@ -31,7 +31,7 @@ export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
+      title={`Welcome to Alapa`}
       description="Alapa is an innovative web development framework that emphasizes simplicity, flexibility, and performance. Designed to streamline the creation of modern web applications, it offers React-like components, seamless routing, modular architecture, built-in authentication, and a customizable template engine. With a focus on modern development practices, Alapa enables developers to create scalable, maintainable applications efficiently. Its intuitive API and rich feature set, combined with active community-driven development, make Alapa an ideal choice for projects of any size, from small to enterprise-level applications."
     >
       <HomepageHeader />

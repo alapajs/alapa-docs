@@ -268,6 +268,39 @@ export class PostController extends Controller {
 
 </CodeScreen>
 
+## Changing Path Separator
+
+By default, Controller-Based Routes in Alapa use the forward slash (/) as the separator
+However, in some cases, you might prefer to use a different character, such as a dash (-),
+to improve readability or conform to certain URL conventions.
+
+You can change the default separator using the @PathSeparator decorator.
+This decorator allows you to customize how Alapa constructs the paths from method names.
+
+<CodeScreen title="src/app/posts/Controller.ts">
+
+```ts
+import { Controller, Request, Response, PathSeparator } from "alapa";
+import { Posts } from "../../models/post";
+
+export class PostController extends Controller {
+  // Handles GET /posts/recent-post
+  @PathSeparator("-")
+  async getRecentPost(req: Request, res: Response) {
+    const post = await Posts.find({
+      order: {
+        createdAt: "DESC",
+      },
+      take: 10,
+    });
+
+    res.render("posts.recent", { post });
+  }
+}
+```
+
+</CodeScreen>
+
 ---
 
 ### Manipulating Route Paths
