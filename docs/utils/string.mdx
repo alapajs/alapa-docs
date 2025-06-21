@@ -1,0 +1,252 @@
+---
+sidebar_position: 1
+title: String
+---
+
+# String Utility Functions
+
+This module provides a set of utility functions for manipulating and analyzing strings.
+
+---
+
+## `shuffle(data: string): string`
+
+Randomly shuffles the characters in a string.
+
+### Parameters:
+
+- `data`: The input string to be shuffled.
+
+### Returns:
+
+- A new string with characters randomly shuffled.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+shuffle("hello"); // e.g., "elolh"
+```
+
+</CodeScreen>
+
+---
+
+## `capitalize(text: string): string`
+
+Capitalizes the first letter of a string. All other letters are converted to lowercase.
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- The capitalized string.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+capitalize("hello WORLD"); // "Hello"
+```
+
+</CodeScreen>
+
+---
+
+## `capitalizeWords(text: string): string`
+
+Capitalizes the first letter of each word in a string.
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- The string with each word capitalized.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+capitalizeWords("hello world"); // "Hello World"
+```
+
+</CodeScreen>
+
+---
+
+## `toSnakeCase(text: string): string`
+
+Converts a string to `snake_case`.
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- The string in `snake_case`.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+toSnakeCase("Hello World"); // "hello_world"
+toSnakeCase("helloWorld"); // "hello_world"
+```
+
+</CodeScreen>
+
+---
+
+## `toKebabCase(text: string): string`
+
+Converts a string to `kebab-case`.
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- The string in `kebab-case`.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+toKebabCase("Hello World"); // "hello-world"
+toKebabCase("helloWorld"); // "hello-world"
+```
+
+</CodeScreen>
+
+---
+
+## `toCamelCase(text: string): string`
+
+Converts a string to `camelCase`.
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- The string in `camelCase`.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+toCamelCase("hello world"); // "helloWorld"
+toCamelCase("Hello World"); // "helloWorld"
+```
+
+</CodeScreen>
+
+---
+
+## `reverse(text: string): string`
+
+Reverses the characters of a string.
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- The reversed string.
+
+### Example:
+
+<CodeScreen>
+```ts
+reverse("hello"); // "olleh"
+```
+
+</CodeScreen>
+
+---
+
+## `isPalindrome(text: string): boolean`
+
+Checks whether a string is a palindrome, ignoring spaces and case.
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- `true` if the string is a palindrome, otherwise `false`.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+isPalindrome("Racecar"); // true
+isPalindrome("Was it a car or a cat I saw"); // true
+```
+
+</CodeScreen>
+
+---
+
+## `isNumeric(text: string): boolean`
+
+Checks whether a string contains only digits.
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- `true` if the string contains only digits, otherwise `false`.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+isNumeric("12345"); // true
+isNumeric("123a5"); // false
+```
+
+</CodeScreen>
+
+---
+
+## `toTitleCase(text: string): string`
+
+Converts a string to title case (first letter of each word capitalized).
+
+### Parameters:
+
+- `text`: The input string.
+
+### Returns:
+
+- The string in title case.
+
+### Example:
+
+<CodeScreen>
+
+```ts
+toTitleCase("the quick brown fox"); // "The Quick Brown Fox"
+```
+
+</CodeScreen>

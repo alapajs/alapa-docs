@@ -1,0 +1,375 @@
+---
+sidebar_position: 3
+title: Value Assertions
+---
+
+# Value Assertions Utilities Functions
+
+A collection of utility functions for checking the type and validity of values.
+
+---
+
+### `isActive(value: any, ...expectedValues: any[]): boolean`
+
+Checks if a value is considered "active" (matches predefined keywords or matches one of the expected values).
+
+#### Active values include:
+
+- `"active"`, `"yes"`, `"true"`, `"current"`, `"selected"`, `"checked"`, `1`, `true`
+
+#### Parameters:
+
+- `value`: The value to evaluate.
+- `expectedValues`: Optional list of values to compare against.
+
+#### Returns:
+
+- `true` if value is "active", otherwise `false`.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isActive("yes"); // true
+isActive("inactive", "pending", "inactive"); // true
+isActive("disabled"); // false
+```
+
+</CodeScreen>
+
+---
+
+### `empty(value: any): boolean`
+
+### `isEmpty(value: any): boolean`
+
+Checks if a value is considered empty (null, undefined, empty string, empty array, or empty object).
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+empty(""); // true
+empty([]); // true
+empty({}); // true
+empty(null); // true
+empty("text"); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isSet(value: any): boolean`
+
+Returns true if the value is neither `undefined` nor `null`.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isSet("hello"); // true
+isSet(null); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isBoolean(value: any): boolean`
+
+Checks if a value is of type `boolean`.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isBoolean(true); // true
+isBoolean("true"); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isString(value: any): boolean`
+
+Checks if a value is a string.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isString("hello"); // true
+```
+
+</CodeScreen>
+
+---
+
+### `isNumber(value: any): boolean`
+
+Checks if a value is a **finite** number.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isNumber(123); // true
+isNumber(Infinity); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isObject(value: any): boolean`
+
+Checks if a value is an object (but not `null` or an array).
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isObject({}); // true
+isObject([]); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isArray(value: any): boolean`
+
+Checks if a value is an array.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isArray([1, 2]); // true
+```
+
+</CodeScreen>
+
+---
+
+### `isFunction(value: any): boolean`
+
+Checks if a value is a function.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isFunction(() => {}); // true
+```
+
+</CodeScreen>
+
+---
+
+### `isDate(value: any): boolean`
+
+Checks if a value is a valid `Date` object.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isDate(new Date()); // true
+isDate("2023-01-01"); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isRegExp(value: any): boolean`
+
+Checks if a value is a `RegExp`.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isRegExp(/abc/); // true
+```
+
+</CodeScreen>
+
+---
+
+### `isNull(value: any): boolean`
+
+Checks if a value is `null`.
+
+---
+
+### `isUndefined(value: any): boolean`
+
+Checks if a value is `undefined`.
+
+---
+
+### `isInteger(value: any): boolean`
+
+Checks if a value is an integer.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isInteger(42); // true
+isInteger(42.1); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isPlainObject(value: any): boolean`
+
+Checks if a value is a **plain object** (`{}`), not an instance of a custom class, array, or built-in type.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isPlainObject({}); // true
+isPlainObject(new Date()); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isPromise(value: any): boolean`
+
+Checks if a value is a Promise (i.e., has a `.then()` method).
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isPromise(Promise.resolve()); // true
+```
+
+</CodeScreen>
+
+---
+
+### `isSymbol(value: any): boolean`
+
+Checks if a value is a `Symbol`.
+
+---
+
+### `isBigInt(value: any): boolean`
+
+Checks if a value is a `BigInt`.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isBigInt(10n); // true
+```
+
+</CodeScreen>
+
+---
+
+### `isMap(value: any): boolean`
+
+Checks if a value is a `Map`.
+
+---
+
+### `isSetType(value: any): boolean`
+
+Checks if a value is a `Set`.
+
+:::note
+
+> Named `isSetType` to avoid conflict with `isSet`.
+
+:::
+
+### `isError(value: any): boolean`
+
+Checks if a value is an instance of `Error`.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isError(new Error("Oops")); // true
+```
+
+</CodeScreen>
+
+---
+
+### `isURL(value: any): boolean`
+
+Checks if a string is a valid URL.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isURL("https://example.com"); // true
+isURL("not a url"); // false
+```
+
+ </CodeScreen>
+
+### `isValidJSON(value: any): boolean`
+
+Checks if a string is a valid JSON.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isValidJSON('{"name":"John"}'); // true
+isValidJSON("{bad json}"); // false
+```
+
+</CodeScreen>
+
+---
+
+### `isIdentifier(value: string): boolean`
+
+Checks if a string is a valid JavaScript identifier.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+isIdentifier("myVar"); // true
+isIdentifier("123abc"); // false
+```
+
+</CodeScreen>

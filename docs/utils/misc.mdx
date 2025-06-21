@@ -1,0 +1,101 @@
+---
+title: Miscellaneous
+---
+
+# Miscellaneous Utilities Functions
+
+Alapa provides a collection of general-purpose utility functions designed to simplify
+common tasks in your application, such as string manipulation, hashing,
+and more.
+
+---
+
+### `randomMd5(): string`
+
+Generates a random 32-character MD5 hash using the current time and random values.
+
+#### Returns:
+
+- A 32-character lowercase MD5 hash string.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+randomMd5(); // e.g., "5e884898da28047151d0e56f8dc62927"
+```
+
+</CodeScreen>
+
+---
+
+### `md5(data: string): string`
+
+Creates an MD5 hash from a given input string.
+
+#### Parameters:
+
+- `data`: A string to hash.
+
+#### Returns:
+
+- The MD5 hash of the input string in lowercase hexadecimal format.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+md5("hello"); // "5d41402abc4b2a76b9719d911017c592"
+```
+
+</CodeScreen>
+
+---
+
+### `escapeRegex(str: string): string`
+
+Escapes all special characters in a string so it can be safely used inside a regular expression.
+
+#### Parameters:
+
+- `str`: The string to escape.
+
+#### Returns:
+
+- The escaped string.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+escapeRegex("price(USD)?"); // "price\\(USD\\)\\?"
+```
+
+</CodeScreen>
+
+---
+
+### `toAbsolutePath(...paths: string[]): string`
+
+Joins and resolves multiple path segments into a single absolute file path.
+
+#### Parameters:
+
+- `...paths`: One or more path segments.
+
+#### Returns:
+
+- A fully resolved absolute path.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+toAbsolutePath("src", "utils", "file.ts"); // "/full/path/src/utils/file.ts"
+```
+
+</CodeScreen>

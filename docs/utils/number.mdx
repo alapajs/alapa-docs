@@ -1,0 +1,89 @@
+---
+sidebar_position: 2
+title: Number
+---
+
+# Number Utility Functions
+
+A set of helper functions for formatting, validating, and generating numeric values.
+
+---
+
+### `numberFormat(number: number, decimals?: number, decimalSeparator?: string, thousandsSeparator?: string): string`
+
+Formats a number with custom decimal places, separators, and thousands grouping. Similar to PHP's `number_format()`.
+
+#### Parameters:
+
+- `number`: The number to format.
+- `decimals` _(optional)_: Number of decimal digits. Defaults to `0`.
+- `decimalSeparator` _(optional)_: Character to use as decimal point. Defaults to `"."`.
+- `thousandsSeparator` _(optional)_: Character to use for thousands. Defaults to `","`.
+
+#### Returns:
+
+- A string of the formatted number.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+numberFormat(1234567.891, 2, ".", ","); // "1,234,567.89"
+numberFormat(1234567.891, 3, ",", "."); // "1.234.567,891"
+```
+
+</CodeScreen>
+
+---
+
+### `NumberOnly(value: any): number`
+
+### `toNumberOnly(value: any): number`
+
+Extracts numeric content from a string and converts it to a number. Removes non-numeric characters except the first decimal point.
+
+#### Parameters:
+
+- `value`: Any input that may represent a number.
+
+#### Returns:
+
+- A valid number, or `0` if invalid.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+NumberOnly("abc123.45def"); // 123.45
+NumberOnly("12.34.56"); // 12.3456
+NumberOnly("abc"); // 0
+NumberOnly(null); // 0
+```
+
+</CodeScreen>
+
+---
+
+### `randomNumber(len?: number): string`
+
+Generates a pseudo-random numeric string of a specified length.
+
+#### Parameters:
+
+- `len` _(optional)_: The number of digits. Defaults to a full-length random string.
+
+#### Returns:
+
+- A numeric string.
+
+#### Example:
+
+<CodeScreen>
+
+```ts
+randomNumber(6); // e.g., "385721"
+```
+
+</CodeScreen>
