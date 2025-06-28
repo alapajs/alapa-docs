@@ -1,0 +1,244 @@
+---
+sidebar_position: 1
+title: Includes and Excludes Fields
+---
+
+Alapa uses include and exclude fields to hidden some fields
+output to the browser or to an api client
+
+## Include Fields
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  balance: number;
+
+  // highlight-next-line
+  showFields = ["firstName", "lastName"];
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```typescript
+const user = await Users.findOneBy({ id: 1 });
+// highlight-next-line
+res.json(user); //applicable to res.api function also
+```
+
+</CodeScreen>
+
+<BrowserWindow title="">
+
+```json
+{ "firstName": "John", "lastName": "Doe" }
+```
+
+</BrowserWindow>
+
+Methods like `user.toClint()`, `user.toAPI()`, `user.sanitize()`, `user.toJSON()` and `user.sterilize()` also ...
+
+<CodeScreen>
+
+```typescript
+const user = await Users.findOneBy({ id: 1 });
+// highlight-next-line
+const output = user.toClient();
+console.log(output); // { "firstName": "John", "lastName": "Doe" }
+```
+
+</CodeScreen>
+
+### @IncludeField
+
+This decorator allows you apply Include to a specific field
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  // highlight-next-line
+  @IncludeField()
+  @Column()
+  firstName: string;
+
+  // highlight-next-line
+  @IncludeField()
+  @Column()
+  firstName: string;
+
+  @Column()
+  balance: number;
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```typescript
+const user = await Users.findOneBy({ id: 1 });
+const output = user.toClient();
+console.log(output); // { "firstName": "John", "lastName": "Doe" }
+```
+
+</CodeScreen>
+
+### Conditional Include Field
+
+You can include output to display conditionally using the syntax `{fieldName:boolean}` as showed below
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  role: string;
+
+  @Column()
+  balance: number;
+
+  showFields = [
+    "firstName",
+    "lastName",
+    // highlight-start
+    {
+      balance: (user) => user.role == "admin", // this.role == "admin"
+    },
+    {
+      isActive: true,
+    },
+    //highlight-end
+  ];
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+You can also apply condition while including fields using decorator @IncludeField(boolean)
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @IncludeField()
+  @Column()
+  firstName: string;
+
+  @IncludeField()
+  @Column()
+  firstName: string;
+
+  // highlight-next-line
+  @IncludeField((user) => user.role == "admin")
+  @Column()
+  balance: number;
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+### Model.setIncludeFields(override:boolean)
+
+this allow you to set include field during run thing
+
+<CodeScreen>
+
+```typescript
+const user = await Users.findOneBy({ id: 1 });
+
+//highlight-next-line
+user.setIncludeField(["balance"]);
+
+const output = user.toClient();
+
+console.log(output); // { "firstName": "John", "lastName": "Doe", "balance": 200.0 }
+```
+
+</CodeScreen>
+
+You can also override the include by setting the `override` to `true`;
+
+<CodeScreen>
+
+```typescript
+const user = await Users.findOneBy({ id: 1 });
+
+//highlight-next-line
+user.setIncludeField(["balance"], true);
+
+const output = user.toClient();
+
+console.log(output); // { "balance": 200.0 }
+```
+
+</CodeScreen>
+
+### Model.getIncludeField()
+
+This allows you to return all the include fields
+
+<CodeScreen>
+
+```typescript
+const user = await Users.findOneBy({ id: 1 });
+
+//highlight-next-line
+const includeFields = user.getIncludeField();
+
+console.log(includeFields); // ["firstName", "lastName"];
+```
+
+</CodeScreen>

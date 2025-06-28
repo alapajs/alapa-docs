@@ -1,0 +1,224 @@
+---
+sidebar_position: 1
+title: Fillable and Guard Fields
+---
+
+# Model.create()
+
+``
+
+Fillable and Guard are fields that tell tel
+
+## fillableFields
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, ModelFillableFields } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  balance: number;
+
+  // highlight-next-line
+  protected fillableFields: ModelFillableFields[] = ["firstName", "lastName"];
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```typescript
+const user = new Users();
+user.create({
+  firstName: "John",
+  lastName: "Doe",
+});
+```
+
+</CodeScreen>
+
+### Model.fill()
+
+<CodeScreen>
+
+```typescript
+const user = new Users();
+user.fill({
+  firstName: "John",
+  lastName: "Doe",
+});
+
+if (user.isDirty()) {
+  await user.save();
+}
+```
+
+</CodeScreen>
+
+### @FillableField()
+
+This decorator allow you to apply fillable to a field on your models
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  // highlight-next-line
+  @FillableField()
+  @Column()
+  firstName: string;
+
+  // highlight-next-line
+  @FillableField()
+  @Column()
+  firstName: string;
+
+  @Column()
+  balance: number;
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+### setFillableFields
+
+This method allow you to set Fillable Fields, this is seems
+to be more convince if you have a lot of logic
+to work with before deciding with field should be fillable or not.
+
+This method should return an array of fillable field as showed below
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  balance: number;
+
+  // highlight-start
+  protected setFillableFields(): ModelFillableFields[] {
+    return ["firstName", "lastName"];
+  }
+  // highlight-end
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+### Conditional Fillable Fields
+
+You can apply condition to fillable on your model.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, ModelFillableFields } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  balance: number;
+
+
+  protected fillableFields: ModelFillableFields[] = [
+  "firstName",
+  "lastName",
+//highlight-next-line
+  "balance":()=>loginUser.role=="admin"
+ ];
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+In the above example balance is only editable only when the role `loginUser` user is
+an admin, of course the login user could be any variable defined to hold the logged in
+user on your alapa project.
+
+## fillableFields
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, ModelFillableFields } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  firstName: string;
+
+  // highlight-next-line
+  @FillableFields(() => loginUser.role == "admin")
+  @Column()
+  balance: number;
+
+  protected fillableFields: ModelFillableFields[] = ["firstName", "lastName"];
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+I hope you noticed both decorator and the property are used together
+likewise the setFillableFields method can also be used with them, when
+you these three features together, the fields will merge together and
+the duplicate and also removed

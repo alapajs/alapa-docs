@@ -1,0 +1,117 @@
+---
+sidebar_position: 1
+title: Model Basics
+---
+
+# Model Basics
+
+## What is a Model?
+
+A **Model** in Alapa represents a class that maps to a database table (or a MongoDB collection, if you're using MongoDB).
+
+To define a model, create a class and decorate it with `@TableModel()`:
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+This generates the following database table:
+
+<CodeScreen>
+
+```shell
++-------------+---------------+----------------------------+
+|                           users                          |
++-------------+---------------+----------------------------+
+| id          | int(11)       | PRIMARY KEY AUTO_INCREMENT |
+| first_name  | varchar(255)  | NOT NULL                   |
+| last_name   | varchar(255)  | NOT NULL                   |
+| is_active   | boolean       | DEFAULT false              |
++-------------+---------------+----------------------------+
+```
+
+</CodeScreen>
+
+> Every model must have a primary column (`@PrimaryColumn`) or an `ObjectId` (when using MongoDB).
+
+---
+
+## Saving a New Record
+
+You can create and save a new user like this:
+
+<CodeScreen>
+
+```typescript
+const user = new Users();
+user.firstName = "John";
+user.lastName = "Doe";
+user.isActive = true;
+
+await user.save();
+console.log(`New User (${user.firstName}) saved successfully.`);
+```
+
+</CodeScreen>
+
+---
+
+## Retrieving Data
+
+### Fetch all users
+
+<CodeScreen>
+
+```typescript
+const users = await Users.find();
+
+if (empty(users)) {
+  console.log("Users table is empty");
+} else {
+  console.log(`Users fetched successfully:`, users);
+}
+```
+
+</CodeScreen>
+
+### Fetch a specific user by ID
+
+<CodeScreen title="src/app/index.ts">
+
+```typescript
+const user = await Users.findOneBy({ id: 1 });
+
+if (!user) {
+  console.log("User not found");
+} else {
+  console.log(`User (${user.firstName}) fetched successfully`);
+}
+```
+
+</CodeScreen>
+
+:::note
+Alapa Model is built on top of [TypeORM](https://typeorm.io).
+This documentation focuses primarily on the customizations, new features, and core concepts specific to working with databases in the Alapa project.
+
+For a deeper understanding of how the underlying model works, refer to the official [TypeORM documentation](https://typeorm.io/docs/getting-started/).
+:::

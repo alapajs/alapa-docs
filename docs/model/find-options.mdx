@@ -1,0 +1,954 @@
+---
+sidebar_position: 2
+title: Find Options
+---
+
+## Basic Options
+
+All Model`.find*` methods accept special options to query data without using `QueryBuilder`.
+
+---
+
+### 🔹 `select` – Select Specific Columns
+
+Indicates which properties of the main object must be selected.
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  select: {
+    firstName: true,
+    lastName: true,
+  },
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT "firstName", "lastName" FROM "users"
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `relations` – Load Related Entities
+
+Loads related entities (shorthand for `join` / `leftJoinAndSelect`).
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  relations: {
+    profile: true,
+    photos: true,
+    videos: true,
+  },
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  relations: {
+    profile: true,
+    photos: true,
+    videos: {
+      videoAttributes: true,
+    },
+  },
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+LEFT JOIN "profile" ON "profile"."id" = "users"."profileId"
+LEFT JOIN "photos" ON "photos"."id" = "users"."photoId"
+LEFT JOIN "videos" ON "videos"."id" = "users"."videoId"
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+LEFT JOIN "profile" ON "profile"."id" = "users"."profileId"
+LEFT JOIN "photos" ON "photos"."id" = "users"."photoId"
+LEFT JOIN "videos" ON "videos"."id" = "users"."videoId"
+LEFT JOIN "video_attributes" ON "video_attributes"."id" = "videos"."video_attributesId"
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `where` – Filter Conditions
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  where: {
+    firstName: "Timber",
+    lastName: "Saw",
+  },
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+WHERE "firstName" = 'Timber' AND "lastName" = 'Saw'
+```
+
+</CodeScreen>
+
+**Embedded entity condition:**
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  relations: {
+    project: true,
+  },
+  where: {
+    project: {
+      name: "TypeORM",
+      initials: "TORM",
+    },
+  },
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+LEFT JOIN "project" ON "project"."id" = "users"."projectId"
+WHERE "project"."name" = 'TypeORM' AND "project"."initials" = 'TORM'
+```
+
+</CodeScreen>
+
+**OR condition:**
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  where: [
+    { firstName: "Timber", lastName: "Saw" },
+    { firstName: "Stan", lastName: "Lee" },
+  ],
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+WHERE ("firstName" = 'Timber' AND "lastName" = 'Saw')
+   OR ("firstName" = 'Stan' AND "lastName" = 'Lee')
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `order` – Sorting Results
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  order: {
+    name: "ASC",
+    id: "DESC",
+  },
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+ORDER BY "name" ASC, "id" DESC
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `withDeleted` – Include Soft Deleted Entities
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  withDeleted: true,
+});
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `skip` and `take` – Pagination
+
+**`skip`:**
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  skip: 5,
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+OFFSET 5
+```
+
+</CodeScreen>
+
+**`take`:**
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  take: 10,
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+LIMIT 10
+```
+
+</CodeScreen>
+
+> 💡 `skip` and `take` should be used together for pagination.
+
+**For MSSQL (requires `order`):**
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  order: {
+    columnName: "ASC",
+  },
+  skip: 0,
+  take: 10,
+});
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+ORDER BY "columnName" ASC
+LIMIT 10 OFFSET 0
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `cache` – Enable Caching
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  cache: true,
+});
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `lock` – Query Locking (Only in `findOne` / `findOneBy`)
+
+**Optimistic Lock:**
+
+<CodeScreen>
+
+```typescript
+Users.findOne({
+  where: {
+    id: 1,
+  },
+  lock: { mode: "optimistic", version: 1 },
+});
+```
+
+</CodeScreen>
+
+**Pessimistic Lock (Structure):**
+
+<CodeScreen>
+
+```typescript
+{
+  mode: "pessimistic_read" |
+        "pessimistic_write" |
+        "dirty_read" |
+        "pessimistic_partial_write" | // Deprecated
+        "pessimistic_write_or_fail" | // Deprecated
+        "for_no_key_update" |
+        "for_key_share",
+  tables: string[],
+  onLocked: "nowait" | "skip_locked"
+}
+```
+
+</CodeScreen>
+
+> 📖 See [lock modes](https://typeorm.io/docs/query-builder/select-query-builder#lock-modes) for more details.
+
+---
+
+### 🔹 Full Example
+
+<CodeScreen>
+
+```typescript
+Users.find({
+  select: {
+    firstName: true,
+    lastName: true,
+  },
+  relations: {
+    profile: true,
+    photos: true,
+    videos: true,
+  },
+  where: {
+    firstName: "Timber",
+    lastName: "Saw",
+    profile: {
+      userName: "tshaw",
+    },
+  },
+  order: {
+    name: "ASC",
+    id: "DESC",
+  },
+  skip: 5,
+  take: 10,
+  cache: true,
+});
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 Find Without Arguments
+
+<CodeScreen>
+
+```typescript
+Users.find();
+```
+
+</CodeScreen>
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "users"
+```
+
+</CodeScreen>
+
+## Advanced options
+
+Alapa Model provides a lot of built-in operators that can be used to create more complex comparisons:
+
+### 🔹 `Not`
+
+<CodeScreen>
+
+```ts
+import { Not } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  title: Not("About #1"),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+```sql
+SELECT * FROM "posts" WHERE "title" != 'About #1'
+```
+
+### 🔹 `LessThan`
+
+<CodeScreen>
+
+```ts
+import { LessThan } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  likes: LessThan(10),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "likes" < 10
+```
+
+</CodeScreen>
+
+### 🔹 `LessThanOrEqual`
+
+<CodeScreen>
+
+```ts
+import { LessThanOrEqual } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  likes: LessThanOrEqual(10),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "likes" <= 10
+```
+
+</CodeScreen>
+
+### 🔹 `MoreThan`
+
+<CodeScreen>
+
+```ts
+import { MoreThan } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  likes: MoreThan(10),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "likes" > 10
+```
+
+</CodeScreen>
+
+### 🔹 `MoreThanOrEqual`
+
+<CodeScreen>
+
+```ts
+import { MoreThanOrEqual } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  likes: MoreThanOrEqual(10),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "likes" >= 10
+```
+
+</CodeScreen>
+
+### 🔹 `Equal`
+
+<CodeScreen>
+
+```ts
+import { Equal } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  title: Equal("About #2"),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "title" = 'About #2'
+```
+
+</CodeScreen>
+
+### 🔹 `Like`
+
+<CodeScreen>
+
+```ts
+import { Like } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  title: Like("%out #%"),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "title" LIKE '%out #%'
+```
+
+</CodeScreen>
+
+### 🔹 `ILike`
+
+<CodeScreen>
+
+```ts
+import { ILike } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  title: ILike("%out #%"),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "title" ILIKE '%out #%'
+```
+
+</CodeScreen>
+
+### 🔹 `Between`
+
+<CodeScreen>
+
+```ts
+import { Between } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  likes: Between(1, 10),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "likes" BETWEEN 1 AND 10
+```
+
+</CodeScreen>
+
+### 🔹 `In`
+
+<CodeScreen>
+
+```ts
+import { In } from "alapa";
+
+const loadedPosts = await Posts.findBy({
+  title: In(["About #2", "About #3"]),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "title" IN ('About #2','About #3')
+```
+
+</CodeScreen>
+
+### 🔹 `Any`
+
+<CodeScreen>
+
+```ts
+import { Any } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  title: Any(["About #2", "About #3"]),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "title" = ANY(['About #2','About #3'])
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `IsNull`
+
+<CodeScreen>
+
+```ts
+import { IsNull } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  title: IsNull(),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "title" IS NULL
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `ArrayContains`
+
+<CodeScreen>
+
+```ts
+import { ArrayContains } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  categories: ArrayContains(["TypeScript"]),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "categories" @> '{TypeScript}'
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `ArrayContainedBy`
+
+<CodeScreen>
+
+```ts
+import { ArrayContainedBy } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  categories: ArrayContainedBy(["TypeScript"]),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "categories" <@ '{TypeScript}'
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `ArrayOverlap`
+
+<CodeScreen>
+
+```ts
+import { ArrayOverlap } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  categories: ArrayOverlap(["TypeScript"]),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "categories" && '{TypeScript}'
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `Raw`
+
+<CodeScreen>
+
+```ts
+import { Raw } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  likes: Raw("dislikes - 4"),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "likes" = "dislikes" - 4
+```
+
+</CodeScreen>
+
+In the simplest case, a raw query is inserted immediately after the equal symbol.
+But you can also completely rewrite the comparison logic using the function.
+
+<CodeScreen>
+
+```ts
+import { Raw } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  currentDate: Raw((alias) => `${alias} > NOW()`),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "currentDate" > NOW()
+```
+
+</CodeScreen>
+
+If you need to provide user input, you should not include the user input directly in your query as this may create a SQL injection vulnerability. Instead, you can use the second argument of the `Raw` function to provide a list of parameters to bind to the query.
+
+<CodeScreen>
+
+```ts
+import { Raw } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  currentDate: Raw((alias) => `${alias} > :date`, { date: "2020-10-06" }),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "currentDate" > '2020-10-06'
+```
+
+</CodeScreen>
+
+If you need to provide user input that is an array, you can bind them as a list of values in the SQL statement by using the special expression syntax:
+
+<CodeScreen>
+
+```ts
+import { Raw } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  title: Raw((alias) => `${alias} IN (:...titles)`, {
+    titles: ["Go To Statement Considered Harmful", "Structured Programming"],
+  }),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "title" IN ('Go To Statement Considered Harmful', 'Structured Programming')
+```
+
+</CodeScreen>
+
+---
+
+## Combining Advanced Options
+
+Also you can combine these operators with below:
+
+---
+
+### 🔹 `Not`
+
+<CodeScreen>
+
+```ts
+import { Not, MoreThan, Equal } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  likes: Not(MoreThan(10)),
+  title: Not(Equal("About #2")),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE NOT("likes" > 10) AND NOT("title" = 'About #2')
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `Or`
+
+<CodeScreen>
+
+```ts
+import { Or, Equal, ILike } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  title: Or(Equal("About #2"), ILike("About%")),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE "title" = 'About #2' OR "title" ILIKE 'About%'
+```
+
+</CodeScreen>
+
+---
+
+### 🔹 `And`
+
+<CodeScreen>
+
+```ts
+import { And, Not, Equal, ILike } from "typeorm";
+
+const loadedPosts = await Posts.findBy({
+  title: And(Not(Equal("About #2")), ILike("%About%")),
+});
+```
+
+</CodeScreen>
+
+will execute following query:
+
+<CodeScreen>
+
+```sql
+SELECT * FROM "posts" WHERE NOT("title" = 'About #2') AND "title" ILIKE '%About%'
+```
+
+</CodeScreen>

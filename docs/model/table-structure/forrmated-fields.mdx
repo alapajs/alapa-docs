@@ -1,0 +1,138 @@
+---
+sidebar_position: 1
+title: Formatted Fields
+---
+
+This allows you to modify field of model after the entity is loaded, it useful for ....
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, ModelFormattedField } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  profilePhoto: string;
+
+  // highlight-start
+  private formattedFields: ModelFormattedField[] = {
+    profilePhoto: (Users: user) =>  "https://example.com/images/" + user.profilePhoto;
+  };
+  // highlight-end
+}
+```
+
+</CodeScreen>
+
+## @FormattedField
+
+This decorator allows you to format field using ...
+
+### @FormattedField\<Model,fieldName,methodName\>(methodName)
+
+This decorator takes three required type parameters, this is useful to validate the return type of the formatted
+and one positional parameter called methodName which method to format the field and must return the respected data
+type of the field
+
+| **Parameter** | **Description**                         |
+| ------------- | --------------------------------------- |
+| Model         | The model                               |
+| fieldName     | The non-function attribute of the model |
+| methodName    | The name of the method                  |
+
+This decorator allows you to format field using ...
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  // highlight-start
+  @FormattedField<Users, "profilePhoto", "formatProfilePhoto">(
+    "formatProfilePhoto"
+  )
+  // highlight-end
+  @Column()
+  profilePhoto: string;
+
+  // highlight-start
+  protected formatProfilePhoto(data: Users): string {
+    return "https://example.com/images/" + data.profilePhoto;
+  }
+  // highlight-end
+}
+```
+
+</CodeScreen>
+
+### @FormattedField\<Model,fieldName\>(function: Function)
+
+This decorator takes two required type parameters, this is useful to validate the return type of the formatted
+and one positional parameter called function which method to format the field and must return the respected data
+type of the field
+
+| **Parameter** | **Description**                         |
+| ------------- | --------------------------------------- |
+| Model         | The model                               |
+| fieldName     | The non-function attribute of the model |
+| function      | The name of the method                  |
+
+This decorator allows you to format field using ...
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, md5, FormattedField } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  // highlight-start
+  @FormattedField<Users, "hashedData">(md5)
+  // highlight-end
+  @Column()
+  hashedData: string;
+}
+```
+
+</CodeScreen>
+
+## @AfterLoad()
+
+For complex formatting that requires more logic you can use a special event called AfterLoad.
+As the name implies this event execute after an entity is loaded
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, AfterLoad } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  profilePhoto: string;
+
+  // highlight-start
+  @AfterLoad()
+  protected afterLoad() {
+    this.profilePhoto = "https://example.com/images/" + data.profilePhoto;
+  }
+  // highlight-end
+}
+```
+
+</CodeScreen>
