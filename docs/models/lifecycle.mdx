@@ -1,0 +1,262 @@
+---
+sidebar_position: 3
+title: Lifecycle
+---
+
+# Model Lifecycle Hooks
+
+In `alapa`, lifecycle hooks (also called listeners) allow you to react to specific events in the lifecycle of an entity—like before it’s saved to the database, after it’s updated, or when it's removed.
+
+These hooks are decorators that you can place on methods inside your entity models to handle things like data transformations, audit logging, sending emails, or cleaning up resources.
+
+---
+
+## Available Lifecycle Hooks
+
+| Hook Decorator    | Triggered When                                      |
+| ----------------- | --------------------------------------------------- |
+| `@AfterLoad()`    | After the entity is loaded from the database        |
+| `@BeforeInsert()` | Right before inserting the entity into the database |
+| `@AfterInsert()`  | Immediately after inserting the entity              |
+| `@BeforeUpdate()` | Just before updating an existing entity             |
+| `@AfterUpdate()`  | Right after updating an entity                      |
+| `@BeforeRemove()` | Before the entity is removed from the database      |
+| `@AfterRemove()`  | After the entity has been removed                   |
+
+---
+
+## Examples for Each Hook
+
+---
+
+### `@AfterLoad()`
+
+Called automatically after an entity is loaded from the database. Useful for initializing computed fields.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, AfterLoad } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  fullName: string;
+
+  @AfterLoad()
+  afterLoad() {
+    this.fullName = `${this.firstName} ${this.lastName}`;
+  }
+}
+```
+
+</CodeScreen>
+
+---
+
+### `@BeforeInsert()`
+
+Triggered before an entity is inserted. Ideal for modifying or validating data before saving to the database.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, BeforeInsert } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  password: string;
+
+  @BeforeInsert()
+  async encryptPassword() {
+    this.password = await HashPassword.encrypt(this.password);
+  }
+}
+```
+
+</CodeScreen>
+
+---
+
+### `@AfterInsert()`
+
+Runs after the entity has been successfully inserted into the database. Commonly used for sending welcome emails or notifications.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, AfterInsert } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  email: string;
+
+  @Column()
+  isVerified: boolean;
+
+  @AfterInsert()
+  async sendWelcomeEmail() {
+    await EmailService.sendWelcome(this.email);
+  }
+}
+```
+
+</CodeScreen>
+
+---
+
+### `@BeforeUpdate()`
+
+Called just before an entity is updated. Great for change tracking.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, BeforeUpdate } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  role: string;
+
+  previousRole: string;
+
+  @BeforeUpdate()
+  async trackRoleChange() {
+    const existing = await Users.findOne({ where: { id: this.id } });
+    if (existing && existing.role !== this.role) {
+      this.previousRole = existing.role;
+      console.log(
+        `User role is being changed from ${existing.role} to ${this.role}`
+      );
+    }
+  }
+}
+```
+
+</CodeScreen>
+
+---
+
+### `@AfterUpdate()`
+
+Triggered immediately after an entity is updated. Perfect for audit logging or notifications.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, AfterUpdate } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  email: string;
+
+  @AfterUpdate()
+  notifyEmailChange() {
+    NotificationService.log(`User ${this.id} email updated to ${this.email}`);
+  }
+}
+```
+
+</CodeScreen>
+
+---
+
+### `@BeforeRemove()`
+
+Runs before an entity is deleted. Useful for pre-deletion validation or logging.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, BeforeRemove } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  email: string;
+
+  @BeforeRemove()
+  logDeletion() {
+    console.log(`Preparing to remove user with email: ${this.email}`);
+  }
+}
+```
+
+</CodeScreen>
+
+---
+
+### `@AfterRemove()`
+
+Called after an entity is removed. You can use it to perform cleanup tasks such as deleting related files.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, PrimaryColumn, Column, AfterRemove } from "alapa";
+import * as fs from "fs/promises";
+import * as path from "path";
+
+@TableModel()
+export class Users extends Model {
+  @PrimaryColumn()
+  id: number;
+
+  @Column()
+  profilePicture: string;
+
+  @AfterRemove()
+  async deleteProfilePicture() {
+    const filePath = path.resolve(
+      "uploads/profile-pictures",
+      this.profilePicture
+    );
+    try {
+      await fs.unlink(filePath);
+      console.log(`Deleted profile picture: ${this.profilePicture}`);
+    } catch (error) {
+      console.error(`Error deleting profile picture: ${error.message}`);
+    }
+  }
+}
+```
+
+</CodeScreen>
+
+---
+
+## Final Notes
+
+- Lifecycle hooks run automatically and can be async.
+- You can mix multiple hooks in a single entity.
+- Always ensure error handling is implemented in hooks that perform I/O operations.

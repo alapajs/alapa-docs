@@ -1,0 +1,476 @@
+---
+sidebar_position: 1
+title: Fillable and Guarded Fields
+---
+
+# Fillable and Guarded Fields
+
+Alapa provides robust mechanisms for managing mass assignment through `fillable` and `guarded` fields.  
+These features help prevent security vulnerabilities while maintaining flexibility in your data operations.
+
+## Important Security Note
+
+By default, Alapa silently discards attributes that aren't in fillable fields during mass assignment.  
+This can lead to confusion in development, as it may appear that certain fields aren't updating. To surface these issues:
+
+<CodeScreen title="src/config/database.ts">
+
+```typescript
+import { ENV } from "alapa";
+export const database: DatabaseConfiguration = {
+  preventSilentlyDiscardingAttributes: ENV == "development",
+};
+```
+
+</CodeScreen>
+
+This setting makes the system throw errors in development when attempting to assign non-fillable fields, helping you catch configuration mistakes early.
+
+:::tip Recommendation
+Enable `preventSilentlyDiscardingAttributes` in development to catch assignment issues early, but keep it disabled in production for security.
+:::
+
+## Flexible Ways to Define Fillable Fields
+
+Alapa offers multiple declarative patterns for defining fillable fields:
+
+1. `fillableFields` property (static declaration)
+2. `@FillableField()` decorator (property-level)
+3. `setFillableFields()` method (dynamic declaration)
+
+These approaches can be used independently or combined—Alapa automatically merges all definitions while eliminating duplicates.
+
+---
+
+## Static Declaration with `fillableFields`
+
+The `fillableFields` property provides a straightforward way to declare mass-assignable attributes:
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, ModelFillableFields, TableModel, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  // highlight-start
+  protected fillableFields: ModelFillableFields<Users>[] = [
+    "firstName",
+    "lastName",
+  ];
+  //protected fillableFields: ModelFillableFields<Users>[] = ["*"];
+  //highlight-end
+}
+```
+
+</CodeScreen>
+
+:::caution Security Note
+Using `"*"` to make all fields fillable is strongly discouraged, as it may expose your model to mass assignment vulnerabilities.
+:::
+
+## Implementing Mass Assignment
+
+After defining fillable fields, use the `Model.fill()` or `Model.create()` method for safe population:
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+import { Users } from "../models/user";
+
+const userRoutes = new Router();
+
+userRoutes.get("/", async (req: Request, res: Response) => {
+  const user = new Users();
+  user.fill({
+    firstName: "John",
+    lastName: "Doe",
+  });
+
+  if (user.isDirty()) {
+    await user.save();
+  }
+});
+```
+
+</CodeScreen>
+
+## Property-Level Declaration with `@FillableField()`
+
+For more granular control, decorate individual properties:
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, Column, TableModel, FillableField } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  //highlight-next-line
+  @FillableField()
+  @Column()
+  firstName: string;
+
+  //highlight-next-line
+  @FillableField()
+  @Column()
+  lastName: string;
+
+  @Column()
+  balance: number;
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+---
+
+## Dynamic Configuration with `setFillableFields()`
+
+When you need to define fillable fields based on complex logic, overriding
+the setFillableFields() method is recommended. This approach gives you full
+flexibility to compute fields dynamically.
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, Column, TableModel, ModelFillableFields } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  //highlight-start
+  protected setFillableFields(): ModelFillableFields<Users>[] {
+    return ["firstName", "lastName"];
+  }
+  //highlight-end
+}
+```
+
+</CodeScreen>
+
+---
+
+## Conditional Field Assignment
+
+### Business Logic-Based Fillable Fields
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, Column, TableModel, ModelFillableFields } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  balance: number;
+
+  protected fillableFields: ModelFillableFields<Users>[] = [
+    "firstName",
+    "lastName",
+    //highlight-next-line
+    { balance: (user: Users) => loginUser.role === "admin" },
+  ];
+}
+```
+
+</CodeScreen>
+
+### Decorator-Based Conditions
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, Column, TableModel, FillableField } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  //highlight-next-line
+  @FillableField((user: Users) => loginUser.role === "admin")
+  @Column()
+  balance: number;
+}
+```
+
+</CodeScreen>
+
+:::note **Note**
+`loginUser` should reference your application's current authentication context.
+:::
+
+---
+
+## Field Management Utilities
+
+### `Model.updateFillableFields()`
+
+Dynamically modify fillable fields at runtime:
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+import { Users } from "../models/user";
+
+const userRoutes = new Router();
+
+userRoutes.get("/", async (req: Request, res: Response) => {
+  const user = new Users();
+  //highlight-next-line
+  user.updateFillableFields(["firstName", "lastName"], true);
+});
+
+export default userRoutes;
+```
+
+</CodeScreen>
+
+| Parameter  | Type                                 | Description                                  |
+| ---------- | ------------------------------------ | -------------------------------------------- |
+| `fields`   | `ModelFillableFieldsMethod<Users>[]` | Fields to add/update                         |
+| `override` | `boolean`                            | When true, replaces all existing definitions |
+
+### `Model.getFillableFields()`
+
+Retrieve current fillable field definitions:
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+import { Users } from "../models/user";
+
+const userRoutes = new Router();
+
+userRoutes.get("/", async (req: Request, res: Response) => {
+  const user = new Users();
+  //highlight-next-line
+  const fillableFields = user.getFillableFields();
+  console.log(fillableFields); // [firstName, lastName]
+});
+
+export default userRoutes;
+```
+
+</CodeScreen>
+
+---
+
+## Guarded Fields Configuration
+
+Guarded fields take the opposite approach of fillable fields, specifying which attributes **cannot** be mass-assigned.
+
+Key characteristics:
+
+- No wildcard (`*`) support
+- Useful when you have just a few sensitive fields to protect
+
+### 1. Static Declaration with `guardedFields`
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, ModelGuardedFields, TableModel, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  publicKey: number;
+
+  @Column()
+  secretKey: string;
+
+  //highlight-start
+  protected guardedFields: ModelGuardedFields<Users>[] = [
+    "publicKey",
+    "secretKey",
+  ];
+  //highlight-end
+}
+```
+
+</CodeScreen>
+
+### 2. Property-Level Declaration with `@GuardedField()`
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, GuardedField, TableModel, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  //highlight-next-line
+  @GuardedField()
+  @Column()
+  apiToken: string;
+}
+```
+
+</CodeScreen>
+
+### 3. Dynamic Configuration with `setGuardedFields()`
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, ModelGuardedFields, TableModel, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  apiToken: string;
+
+  @Column()
+  passwordResetToken: string;
+
+  //highlight-start
+  protected setGuardedFields(): ModelGuardedFields<Users>[] {
+    return ["apiToken", "passwordResetToken"];
+  }
+  //highlight-end
+}
+```
+
+</CodeScreen>
+
+### 4. Conditional Guarded Fields
+
+<CodeScreen title="src/app/models/user.ts">
+
+```typescript
+import { Model, ModelGuardedFields, TableModel, Column } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  ssn: number;
+
+  //highlight-start
+  protected guardedFields: ModelGuardedFields<Users>[] = [
+    { ssn: (user) => !user.hasFinancialAccess() },
+  ];
+  //highlight-end
+}
+```
+
+</CodeScreen>
+
+---
+
+## Guarded Field Management Utilities
+
+### Model.updateGuardedFields;
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+import { Users } from "../models/user";
+
+const userRoutes = new Router();
+
+userRoutes.get("/", async (req: Request, res: Response) => {
+  const user = new Users();
+  //highlight-next-line
+  user.updateGuardedFields(["passwordResetToken"], true);
+});
+
+export default userRoutes;
+```
+
+</CodeScreen>
+
+### Model.getGuardedFields
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+import { Users } from "../models/user";
+
+const userRoutes = new Router();
+
+userRoutes.get("/", async (req: Request, res: Response) => {
+  const user = new Users();
+  //highlight-next-line
+  const guardedFields = user.getGuardedFields();
+  console.log(guardedFields); // [passwordResetToken]
+});
+
+export default userRoutes;
+```
+
+</CodeScreen>
+
+---
+
+:::tip Priority Rule
+When both `fillable` and `guarded` fields are defined, the **`fillable`
+configuration always takes the highest priority**, and the `guarded` declaration will be ignored.
+:::
+
+---
+
+## Unified Field Resolution & Best Practices
+
+Alapa intelligently merges all field definitions with the following rules:
+
+- Definitions from `fillableFields`, `@FillableField()`, and `setFillableFields()` are combined.
+- Guarded fields from all sources are merged similarly.
+- **Fillable fields override guarded fields** in case of conflict.
+
+### Recommended Best Practices
+
+- ✅ Prefer `fillable` fields in most cases
+- 🛡️ Use `guarded` when you few sensitive fields to protect
+- 🚫 Never define both on the same model
+- 🧪 Enable `preventSilentlyDiscardingAttributes` in development
+- 🔍 Regularly audit field-level security
+
+By properly implementing these patterns, you ensure secure handling of model data while maintaining the flexibility needed for complex business requirements.

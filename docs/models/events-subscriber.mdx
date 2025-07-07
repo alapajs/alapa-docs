@@ -1,0 +1,177 @@
+---
+sidebar_position: 4
+title: Events Subscribers
+---
+
+# Model Events Subscribers
+
+Model **Events Subscribers** in Alapa are powerful tools for hooking into the lifecycle of entities.
+They allow you to run custom logic when things happen to your data — like before inserting a user,
+after updating a product, or when any record is deleted. Think of them as event listeners for your database models.
+
+## Why Use Subscribers?
+
+Subscribers let you:
+
+- **React to lifecycle events** like insert/update/delete/load.
+- **Keep models clean** by decoupling business logic.
+- **Log or audit** every database change.
+- **Trigger side effects** like sending emails or pushing events.
+
+---
+
+## Supported Lifecycle Events
+
+Here are all the lifecycle methods you can use in a subscriber:
+
+| Method         | Triggered When…                           | Event Object     |
+| -------------- | ----------------------------------------- | ---------------- |
+| `beforeInsert` | Before inserting a new entity             | `InsertEvent<T>` |
+| `afterInsert`  | After inserting a new entity              | `InsertEvent<T>` |
+| `beforeUpdate` | Before updating an existing entity        | `UpdateEvent<T>` |
+| `afterUpdate`  | After updating an existing entity         | `UpdateEvent<T>` |
+| `beforeRemove` | Before deleting an entity                 | `RemoveEvent<T>` |
+| `afterRemove`  | After deleting an entity                  | `RemoveEvent<T>` |
+| `afterLoad`    | After loading an entity from the database | `LoadEvent<T>`   |
+
+Each lifecycle method gives you full access to:
+
+- `event.entity`: the entity being inserted/updated/removed
+- `event.databaseEntity`: the previous value (before update)
+- `event.manager`: the DB manager if you need to make DB queries
+
+You can:
+
+- Target a **specific entity** (`Users`, `Orders`, etc.)
+- Or listen to events on **all entities** in your app
+
+---
+
+## How to Write a Subscriber
+
+A **Subscriber** implements `ModelSubscriberInterface` and uses the `@EventSubscriber()` decorator.
+
+### Specific Subscriber (Users Model)
+
+This approach lets you track lifecycle events **only for the `Users` model**.
+
+<CodeScreen title="src/app/subscribers/user-subscriber.ts">
+
+```ts
+import {
+  EventSubscriber,
+  ModelSubscriberInterface,
+  InsertEvent,
+  UpdateEvent,
+  RemoveEvent,
+  LoadEvent,
+} from "alapa";
+import { Users } from "../models/user";
+
+@EventSubscriber()
+export class UserSubscriber implements ModelSubscriberInterface<Users> {
+  /**
+   * Subscribe only to Users entity
+   */
+  listenTo() {
+    return Users;
+  }
+
+  beforeInsert(event: InsertEvent<Users>) {
+    console.log(`[beforeInsert] New user: ${event.entity?.email}`);
+  }
+
+  afterInsert(event: InsertEvent<Users>) {
+    console.log(`[afterInsert] Inserted user with ID: ${event.entity?.id}`);
+  }
+
+  beforeUpdate(event: UpdateEvent<Users>) {
+    console.log(`[beforeUpdate] Updating user ${event.databaseEntity?.id}`);
+  }
+
+  afterUpdate(event: UpdateEvent<Users>) {
+    console.log(`[afterUpdate] Updated user ${event.entity?.id}`);
+  }
+
+  beforeRemove(event: RemoveEvent<Users>) {
+    console.log(`[beforeRemove] Removing user ${event.entity?.id}`);
+  }
+
+  afterRemove(event: RemoveEvent<Users>) {
+    console.log(`[afterRemove] Removed user ${event.entity?.id}`);
+  }
+
+  afterLoad(entity: Users, event?: LoadEvent<Users>) {
+    console.log(`[afterLoad] Loaded user ${entity.id}`);
+  }
+}
+```
+
+</CodeScreen>
+
+#### Highlights:
+
+- `listenTo()` binds the subscriber to the `Users` entity only.
+- Each method corresponds to a lifecycle event.
+- Use `event.entity` for the new version, and `event.databaseEntity` for the old.
+
+---
+
+### Global Subscriber (All Models)
+
+Sometimes, you need to track changes across the whole system (e.g., for auditing or logging).
+
+Here’s how to write a subscriber that listens to **all models**, not just one.
+
+<CodeScreen title="src/app/subscribers/global-subscriber.ts">
+
+```ts
+import {
+  EventSubscriber,
+  ModelSubscriberInterface,
+  InsertEvent,
+  UpdateEvent,
+  RemoveEvent,
+} from "alapa";
+
+@EventSubscriber()
+export class GlobalSubscriber implements ModelSubscriberInterface {
+  /**
+   * No listenTo() means this applies to all models.
+   */
+
+  afterInsert(event: InsertEvent<any>) {
+    console.log(
+      `[Global:afterInsert] ${event.metadata.tableName} inserted (ID: ${event.entity?.id})`
+    );
+  }
+
+  afterUpdate(event: UpdateEvent<any>) {
+    console.log(
+      `[Global:afterUpdate] ${event.metadata.tableName} updated (ID: ${event.entity?.id})`
+    );
+  }
+
+  afterRemove(event: RemoveEvent<any>) {
+    console.log(
+      `[Global:afterRemove] ${event.metadata.tableName} removed (ID: ${event.entity?.id})`
+    );
+  }
+}
+```
+
+</CodeScreen>
+
+#### Highlights:
+
+- This subscriber reacts to **any model**.
+- Useful for building a central **audit system**, analytics, or debugging.
+
+---
+
+## Best Practices
+
+- Use **specific subscribers** for tightly coupled logic (e.g., user verification).
+- Use **global subscribers** for cross-cutting concerns (e.g., logging, metrics).
+- Make methods `async` if they use `await` logic (e.g., saving audit logs).
+- Keep logic **fast and non-blocking** where possible.

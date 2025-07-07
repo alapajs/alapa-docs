@@ -1,0 +1,460 @@
+---
+sidebar_position: 3
+title: Include and Exclude Fields
+---
+
+# Include and Exclude Fields
+
+Alapa offers robust mechanisms for controlling which fields are exposed to clients through `includeFields` and `excludeFields`.  
+These configurations help sanitize model output for browsers and APIs, protecting sensitive data while improving clarity and consistency.
+
+Both decorators and dynamic runtime utilities are supported, giving you maximum flexibility while keeping your models secure.
+
+---
+
+## Core Concept
+
+- **`includeFields`** – explicitly define which fields **should be included** in client responses.
+- **`excludeFields`** – define which fields **must be excluded** from client responses.
+
+:::tip Priority Rule  
+When both `includeFields` and `excludeFields` are defined, `includeFields` takes precedence and `excludeFields` is ignored.
+:::
+
+---
+
+## Static Declaration with `includeFields`
+
+Define output-safe fields statically by assigning them to the `protected includeFields` property.
+
+<CodeScreen title="src/app/models/user.ts" >
+
+```ts
+import { Model, Column, ModelIncludeFields, TableModel } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  passwordResetToken: string;
+
+  @Column()
+  password: string;
+
+  // highlight-start
+  protected includeFields: ModelIncludeFields<Users>[] = [
+    "firstName",
+    "lastName",
+  ];
+  // highlight-end
+}
+```
+
+</CodeScreen>
+
+:::caution Security Tip
+Avoid using `"*"` to include all fields, as it may unintentionally expose sensitive attributes to clients.
+:::
+
+---
+
+## Implementing Output
+
+When a model is serialized using methods like `res.json()`, `toClient()`, or `toAPI()`, only the fields in `includeFields` will appear in the response.
+
+<CodeScreen >
+
+```ts
+const user = await Users.findOneBy({ id: 1 });
+// highlight-next-line
+res.json(user);
+```
+
+</CodeScreen>
+
+<BrowserWindow title="users/1" >
+```json
+{ "firstName": "John", "lastName": "Doe" }
+```
+</BrowserWindow>
+
+---
+
+## Property-Level Declaration with `@IncludeField()`
+
+You can also define included fields directly on properties using decorators.
+
+<CodeScreen title="src/app/models/user.ts" >
+
+```ts
+import { Model, Column, IncludeField, TableModel } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  password: string;
+
+  // highlight-next-line
+  @IncludeField()
+  @Column()
+  firstName: string;
+
+  // highlight-next-line
+  @IncludeField()
+  @Column()
+  lastName: string;
+
+  @Column()
+  balance: number;
+
+  @Column()
+  isActive: boolean;
+}
+```
+
+</CodeScreen>
+
+<CodeScreen >
+
+```ts
+const user = await Users.findOneBy({ id: 1 });
+const output = user.toClient();
+console.log(output); // { "firstName": "John", "lastName": "Doe" }
+```
+
+</CodeScreen>
+
+---
+
+## `setIncludeFields()` Method
+
+For dynamic include logic, override the `setIncludeFields()` method to return specific fields programmatically.
+
+<CodeScreen title="src/app/models/user.ts" >
+
+```ts
+import { Model, Column, ModelIncludeFields, TableModel } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  password: string;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  // highlight-start
+  protected setIncludeFields(): ModelIncludeFields<Users>[] {
+    return ["firstName", "lastName"];
+  }
+  // highlight-end
+}
+```
+
+</CodeScreen>
+
+---
+
+## Conditional Include Fields
+
+You can include fields conditionally using booleans or functions.
+
+### Object-Based Conditional Fields
+
+<CodeScreen title="src/app/models/user.ts" >
+
+```ts
+import { Model, Column, TableModel } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  role: string;
+
+  @Column()
+  balance: number;
+
+  // highlight-start
+  protected includeFields = [
+    "firstName",
+    "lastName",
+    {
+      balance: (user) => user.role === "admin",
+    },
+  ];
+  // highlight-end
+}
+```
+
+</CodeScreen>
+
+### Decorator-Based Conditional Fields
+
+You can apply conditions directly using the `@IncludeField()` decorator with a function.
+
+<CodeScreen title="src/app/models/user.ts" >
+
+```ts
+import { Model, Column, IncludeField, TableModel } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @IncludeField()
+  @Column()
+  firstName: string;
+
+  @IncludeField()
+  @Column()
+  lastName: string;
+
+  // highlight-next-line
+  @IncludeField((user) => user.role === "admin")
+  @Column()
+  balance: number;
+}
+```
+
+</CodeScreen>
+
+---
+
+## `updateIncludeField()`
+
+You can update the list of included fields at runtime.
+
+<CodeScreen >
+
+```ts
+const user = await Users.findOneBy({ id: 1 });
+
+// highlight-next-line
+user.updateIncludeField(["balance"]);
+
+const output = user.toClient();
+console.log(output); // { "firstName": "John", "lastName": "Doe", "balance": 200.0 }
+```
+
+</CodeScreen>
+
+### Override Mode
+
+To fully replace existing include definitions:
+
+<CodeScreen >
+
+```ts
+const user = await Users.findOneBy({ id: 1 });
+
+// highlight-next-line
+user.updateIncludeField(["balance"], true);
+
+const output = user.toClient();
+console.log(output); // { "balance": 200.0 }
+```
+
+</CodeScreen>
+
+### Parameters
+
+| Parameter  | Type                                | Description                                  |
+| ---------- | ----------------------------------- | -------------------------------------------- |
+| `fields`   | `ModelIncludeFieldsMethod<Users>[]` | Fields to include                            |
+| `override` | `boolean`                           | If `true`, replaces all existing definitions |
+
+---
+
+## Retrieve Current Include Fields
+
+Use `getIncludeField()` to access the current include rules at runtime.
+
+<CodeScreen >
+
+```ts
+const user = await Users.findOneBy({ id: 1 });
+// highlight-next-line
+const includeFields = user.getIncludeField();
+console.log(includeFields); // ["firstName", "lastName"]
+```
+
+</CodeScreen>
+
+---
+
+## Exclude Fields
+
+Use `excludeFields` to define fields that should never be exposed in client responses.
+
+### Static Declaration with `excludeFields`
+
+<CodeScreen title="src/app/models/user.ts" >
+
+```ts
+import { Model, Column, ModelExcludeFields, TableModel } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @Column()
+  password: string;
+
+  @Column()
+  ssn: string;
+
+  // highlight-next-line
+  protected excludeFields: ModelExcludeFields<Users>[] = ["password", "ssn"];
+}
+```
+
+</CodeScreen>
+
+### Decorator-Based Excludes
+
+You can use the `@ExcludeField()` decorator with or without conditions.
+
+<CodeScreen title="src/app/models/user.ts" >
+
+```ts
+import { Column, ExcludeField } from "alapa";
+
+// highlight-next-line
+@ExcludeField()
+@Column()
+password: string;
+
+// highlight-next-line
+@ExcludeField((user) => user.role !== "admin")
+@Column()
+ssn: string;
+```
+
+</CodeScreen>
+
+---
+
+## `setExcludeFields()` Method
+
+You can dynamically define excluded fields by overriding `setExcludeFields()`.
+
+<CodeScreen title="src/app/models/user.ts" >
+
+```ts
+import { Model, Column, ModelExcludeFields, TableModel } from "alapa";
+
+@TableModel()
+export class Users extends Model {
+  @Column()
+  password: string;
+
+  @Column()
+  ssn: number;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  // highlight-start
+  protected setExcludeFields(): ModelExcludeFields<Users>[] {
+    return ["ssn", "password"];
+  }
+  // highlight-end
+}
+```
+
+</CodeScreen>
+
+---
+
+## Update `excludeFields` at Runtime
+
+Use `updateExcludeField()` to modify excluded fields dynamically.
+
+<CodeScreen >
+
+```ts
+const user = await Users.findOneBy({ id: 1 });
+
+// highlight-next-line
+user.updateExcludeField(["password", "ssn"], true);
+```
+
+</CodeScreen>
+
+---
+
+## Retrieve Current Exclude Fields
+
+<CodeScreen >
+
+```ts
+const user = await Users.findOneBy({ id: 1 });
+// highlight-next-line
+const excluded = user.getExcludeField();
+console.log(excluded); // ["password", "ssn"]
+```
+
+</CodeScreen>
+
+---
+
+## Methods That Respect Include/Exclude Fields
+
+The following model methods automatically apply both `includeFields` and `excludeFields` filtering:
+
+- `Model.toClient()`
+- `Model.toAPI()`
+- `Model.toJSON()`
+- `Model.sanitize()`
+- `Model.sterilize()`
+- `res.api()`
+
+<CodeScreen >
+
+```ts
+const user = await Users.findOneBy({ id: 1 });
+// highlight-next-line
+const output = user.toClient();
+console.log(output); // { "firstName": "John", "lastName": "Doe" }
+```
+
+</CodeScreen>
+
+---
+
+## Unified Field Resolution & Best Practices
+
+Alapa intelligently merges all include and exclude definitions using the following rules:
+
+- Fields from `includeFields`, `@IncludeField()`, and `setIncludeFields()` are combined.
+- Fields from `excludeFields`, `@ExcludeField()`, and `setExcludeFields()` are combined.
+- **When both `include` and `exclude` are present, `include` always overrides `exclude`.**
+
+### Recommended Best Practices
+
+- ✅ Prefer `includeFields` for precise control over model output
+- 🚫 Avoid defining both `includeFields` and `excludeFields` on the same model
+- 🔐 Use `excludeFields` to hide specific sensitive attributes
+- 🧪 Enable strict development checks if available
+- 📤 Regularly audit exposed fields to prevent accidental data leaks
+
+By carefully managing `include` and `exclude` configurations, you can keep your APIs predictable, maintainable, and secure.

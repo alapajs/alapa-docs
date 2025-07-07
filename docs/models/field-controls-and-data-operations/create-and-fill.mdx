@@ -1,0 +1,161 @@
+---
+sidebar_position: 2
+title: Create and Fill
+---
+
+This guide introduces how to **mass assign data** using the `create` and `fill` methods in Alapa models.
+
+> Before using this feature, ensure you have configured [Fillable and Guarded Fields](./fillable-guards-fields.mdx).
+
+---
+
+## `Model.create(data)`
+
+The `create()` method allows you to mass assign and persist data to the database immediately.
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+import { Users } from "../models/user";
+
+const userRoutes = new Router();
+
+userRoutes.get("/", async (req: Request, res: Response) => {
+  const user = new Users();
+
+  //highlight-start
+  await user.create({
+    firstName: "John",
+    lastName: "Doe",
+  });
+  //highlight-end
+
+  console.log(user); // {"id": 1, "firstName": "John", "lastName": "Doe"}
+});
+```
+
+</CodeScreen>
+
+---
+
+## `Model.fill(data)`
+
+Use `fill()` to populate model attributes **without saving to the database immediately**.
+This is especially useful when modifying or combining values before persisting.
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+import { Users } from "../models/user";
+
+const userRoutes = new Router();
+
+userRoutes.get("/", async (req: Request, res: Response) => {
+  const user = new Users();
+
+  //highlight-start
+  user.fill({
+    firstName: "John",
+    lastName: "Doe",
+  });
+  //highlight-end
+
+  user.secretKey = randomMd5(); // Set additional property
+});
+```
+
+</CodeScreen>
+
+Alternatively, you can achieve a similar result using `create()` with the `fillOnly: true` option:
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+import { Router, Request, Response, randomMd5 } from "alapa";
+import { Users } from "../models/user";
+
+const userRoutes = new Router();
+
+userRoutes.get("/", async (req: Request, res: Response) => {
+  const user = new Users();
+
+  //highlight-start
+  user.create(
+    {
+      firstName: "John",
+      lastName: "Doe",
+    },
+    {
+      fillOnly: true,
+    }
+  );
+  //highlight-end
+
+  user.secretKey = randomMd5();
+
+  await user.save();
+});
+```
+
+</CodeScreen>
+
+---
+
+## `Model.isDirty()`
+
+Checks whether any model attributes have changed since they were loaded from the database.
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+const user = new Users();
+user.lastName = "smith";
+
+user.isDirty(); // true
+user.isDirty("lastName"); // true
+user.isDirty(["firstName", "lastName"]); // true
+user.isDirty("firstName"); // false
+```
+
+</CodeScreen>
+
+---
+
+## `Model.isClean()`
+
+Checks whether the model (or specific fields) remain unchanged since the last sync with the database.
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+const user = new Users();
+user.lastName = "smith";
+
+user.isClean(); // false
+user.isClean("lastName"); // false
+user.isClean(["firstName", "lastName"]); // false
+user.isClean("firstName"); // true
+```
+
+</CodeScreen>
+
+---
+
+## `Model.getOriginalValues()`
+
+Returns the original values of the model before any changes were made.
+
+<CodeScreen title="src/app/users/router.ts">
+
+```typescript
+const user = new Users();
+user.lastName = "smith";
+
+user.getOriginalValues(); // { "id": 1, "firstName": "John", "lastName": "Doe" }
+user.getOriginalValues("lastName"); // "Doe"
+user.getOriginalValues(["lastName", "firstName"]); // { "firstName": "John", "lastName": "Doe" }
+```
+
+</CodeScreen>
