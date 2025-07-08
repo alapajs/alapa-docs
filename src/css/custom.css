@@ -53,8 +53,8 @@
 }
 
 .code-block-error-line {
-  background: brown;
-  border-left: red solid 4px;
+  background: rgba(162, 90, 90, 0.2);
+  border-left: #ff0000 solid 4px;
 }
 
 .theme-code-block-highlighted-line {
