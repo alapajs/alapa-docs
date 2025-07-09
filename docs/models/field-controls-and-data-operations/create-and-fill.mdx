@@ -156,6 +156,7 @@ user.lastName = "smith";
 user.getOriginalValues(); // { "id": 1, "firstName": "John", "lastName": "Doe" }
 user.getOriginalValues("lastName"); // "Doe"
 user.getOriginalValues(["lastName", "firstName"]); // { "firstName": "John", "lastName": "Doe" }
+user.getOriginalValues("lastName", "firstName"); // { "firstName": "John", "lastName": "Doe" }
 ```
 
 </CodeScreen>

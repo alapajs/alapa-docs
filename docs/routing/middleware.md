@@ -5,15 +5,20 @@ title: Middleware
 
 # **Middleware**
 
-Middleware in Alapa provides a powerful mechanism for inspecting and filtering HTTP requests as they enter your application. Middleware is often used to handle common tasks such as authentication, logging, and modifying request or response objects before they reach the route handler.
+Middleware in Alapa provides a powerful mechanism for inspecting and filtering HTTP requests
+as they enter your application. Middleware is often used to handle common tasks such as authentication,
+logging, and modifying request or response objects before they reach the route handler.
 
-Alapa's middleware system is inspired by Express, offering simplicity and flexibility for developers to implement custom and reusable logic.
+Alapa's middleware system is inspired by Express, offering simplicity and flexibility for
+developers to implement custom and reusable logic.
 
 ---
 
 ## **Understanding Middleware**
 
-Middleware acts as a pipeline through which requests pass before they reach the defined route handlers. If a middleware detects an issue (e.g., the user is not authenticated), it can interrupt the request cycle and respond directly. Otherwise, it invokes the `next()` function to pass control to the next middleware or route handler.
+Middleware acts as a pipeline through which requests pass before they reach the defined route handlers.
+If a middleware detects an issue (e.g., the user is not authenticated), it can interrupt the request
+cycle and respond directly. Otherwise, it invokes the `next()` function to pass control to the next middleware or route handler.
 
 ### Example: Basic Middleware
 
@@ -60,8 +65,6 @@ dashboardRoutes.middleware(dashboardMiddle);
 ```
 
 </CodeScreen>
-
-<!---
 
 ---
 
@@ -156,7 +159,6 @@ Here, the logger middleware logs the request details before the authentication m
 
 ---
 
-<!--
 ## **Route-Specific Middleware**
 
 Middleware can also be applied to specific routes instead of an entire router instance.
@@ -202,11 +204,11 @@ useGlobalMiddleware(globalLogger);
 ```
 
 </CodeScreen>
--->
 
 ## **Error-Handling Middleware**
 
-Middleware can also handle errors that occur during request processing. Error-handling middleware functions have an additional `err` parameter as the first argument.
+Middleware can also handle errors that occur during request processing.
+Error-handling middleware functions have an additional `err` parameter as the first argument.
 
 ### Example:
 
@@ -233,4 +235,7 @@ router.use(errorHandler);
 
 ## **Summary**
 
-Middleware is a critical part of the Alapa framework, allowing you to implement reusable logic for tasks like authentication, logging, and error handling. Whether applied globally, to specific routes, or as part of a middleware chain, it provides a structured way to manage request processing in your application.
+Middleware is a critical part of the Alapa framework, allowing you to implement
+reusable logic for tasks like authentication, logging, and error handling. Whether
+applied globally, to specific routes, or as part of a middleware chain, it provides a
+structured way to manage request processing in your application.

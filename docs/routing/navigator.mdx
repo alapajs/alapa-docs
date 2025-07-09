@@ -1,0 +1,245 @@
+---
+sidebar_position: 4
+title: Navigation & Redirection
+---
+
+Alapa provides a robust and intuitive navigation API to manage routing and redirection across your project.
+It supports redirecting users, navigating to named routes, and attaching flash messages such as success,
+error, or info notifications seamlessly.
+
+## `res.navigate.redirect`
+
+Use this method to redirect a user to another URL. It accepts a single parameter — the target URL — which can
+be either absolute or relative.
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-next-line
+  return res.navigate.redirect("/home");
+});
+```
+
+</CodeScreen>
+
+---
+
+## `res.navigate.back`
+
+Redirects the user to the previous page (the HTTP referer).
+This is useful after actions like failed login or form validation errors.
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-next-line
+  return res.navigate.back();
+});
+```
+
+</CodeScreen>
+
+You can also include a flash message when navigating back:
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-next-line
+  return res.navigate.back("error", "Authentication failed");
+});
+```
+
+</CodeScreen>
+
+---
+
+## `res.navigate.route`
+
+Use this method to navigate to a named route in your Alapa project. This is especially useful when working with route name definitions instead of hardcoded paths.
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-next-line
+  return res.navigate.route("dashboard");
+});
+```
+
+</CodeScreen>
+
+You can also pass parameters required by the route:
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  const data = req.only("post");
+  //highlight-next-line
+  return res.navigate.route("posts", data.post);
+});
+```
+
+</CodeScreen>
+
+---
+
+## `res.navigate.with`
+
+Use `.with()` to attach a flash message to any navigation call. It accepts two arguments:
+
+- `type`: A string (`success`, `error`, `info`, or `warn`)
+- `message`: A string or array of messages to display
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  const data = req.only("post");
+  //highlight-start
+  return res.navigate
+    .route("posts", data.post)
+    .with("success", "Redirected to post successfully");
+  //highlight-end
+});
+```
+
+</CodeScreen>
+
+---
+
+## `res.navigate.withSuccess`
+
+A shortcut to `.with("success", message)`. Accepts a string or array of success messages.
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-start
+  return res.navigate.back().withSuccess("Login successful");
+  //highlight-end
+});
+```
+
+</CodeScreen>
+
+---
+
+## `res.navigate.withErrors`
+
+A shortcut for chaining error messages. Accepts a string or an array of messages.
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-start
+  return res.navigate.back().withErrors("Authentication failed");
+  //highlight-end
+});
+```
+
+</CodeScreen>
+
+---
+
+## `res.navigate.withInfo`
+
+Used to display informational messages. Accepts a string or array of messages.
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-start
+  return res.navigate
+    .route("dashboard")
+    .withInfo("New feature available. Would you like to try it?");
+  //highlight-end
+});
+```
+
+</CodeScreen>
+
+---
+
+## `res.navigate.withWarn`
+
+Used to display warning messages. Accepts a string or array of warnings.
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-start
+  return res.navigate
+    .route("dashboard")
+    .withWarn("2FA is not enabled on your account");
+  //highlight-end
+});
+```
+
+</CodeScreen>
+
+---
+
+## Chaining Navigation Methods
+
+All navigation methods are chainable. The order of chained methods doesn’t matter — Alapa handles it correctly behind the scenes.
+
+<CodeScreen title="src/app/account/router.ts">
+
+```typescript
+import { Router, Request, Response } from "alapa";
+const router = new Router();
+
+router.get("/", async (req: Request, res: Response) => {
+  //highlight-start
+  return res.navigate
+    .withSuccess("Welcome to your dashboard")
+    .withInfo("You've received a free credit")
+    .route("dashboard")
+    .withWarn("Your email is not verified. Please verify it now.");
+  //highlight-end
+});
+```
+
+</CodeScreen>
+
+---
+
+This powerful navigation API allows you to build expressive, user-friendly flows while keeping your code clean and readable.
